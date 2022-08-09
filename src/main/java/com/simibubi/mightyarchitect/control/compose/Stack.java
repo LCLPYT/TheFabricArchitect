@@ -1,19 +1,17 @@
 package com.simibubi.mightyarchitect.control.compose;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
-import javax.annotation.Nullable;
-
 import com.simibubi.mightyarchitect.AllSpecialTextures;
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.control.design.DesignLayer;
 import com.simibubi.mightyarchitect.control.design.DesignTheme;
 import com.simibubi.mightyarchitect.control.design.DesignType;
 import com.simibubi.mightyarchitect.control.design.ThemeStatistics;
-
 import net.minecraft.core.BlockPos;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class Stack {
 
@@ -23,11 +21,11 @@ public class Stack {
 	public Stack(Room room) {
 		rooms = new ArrayList<>();
 		theme = ArchitectManager.getModel()
-			.getGroundPlan().theme;
+				.getGroundPlan().theme;
 
 		if (room.designLayer == DesignLayer.None) {
 			room.designLayer = theme.getLayers()
-				.contains(DesignLayer.Foundation) ? DesignLayer.Foundation : DesignLayer.Regular;
+					.contains(DesignLayer.Foundation) ? DesignLayer.Foundation : DesignLayer.Regular;
 		}
 
 		rooms.add(room);
@@ -63,7 +61,7 @@ public class Stack {
 		if (!exactCopy) {
 			int defaultHeightForFloor = theme.getDefaultHeightForFloor(rooms.size());
 			newRoom.height = defaultHeightForFloor != -1 ? defaultHeightForFloor
-				: Math.max(reference.height, Math.min(4, theme.getMaxFloorHeight()));
+					: Math.max(reference.height, Math.min(4, theme.getMaxFloorHeight()));
 		}
 
 		rooms.add(index, newRoom);
@@ -92,12 +90,12 @@ public class Stack {
 
 	public void forEachAbove(Room anchor, Consumer<? super Room> action) {
 		rooms.subList(rooms.indexOf(anchor) + 1, rooms.size())
-			.forEach(action);
+				.forEach(action);
 	}
 
 	public void forRoomAndEachAbove(Room anchor, Consumer<? super Room> action) {
 		rooms.subList(rooms.indexOf(anchor), rooms.size())
-			.forEach(action);
+				.forEach(action);
 	}
 
 	public void forEach(Consumer<? super Room> action) {
@@ -133,15 +131,15 @@ public class Stack {
 
 	public AllSpecialTextures getTextureOf(Room room) {
 		switch (room.designLayer) {
-		case Foundation:
-			return AllSpecialTextures.FOUNDATION;
-		case None:
-		case Open:
-		case Regular:
-		case Roofing:
-		case Special:
-		default:
-			return AllSpecialTextures.NORMAL;
+			case Foundation:
+				return AllSpecialTextures.FOUNDATION;
+			case None:
+			case Open:
+			case Regular:
+			case Roofing:
+			case Special:
+			default:
+				return AllSpecialTextures.NORMAL;
 		}
 	}
 

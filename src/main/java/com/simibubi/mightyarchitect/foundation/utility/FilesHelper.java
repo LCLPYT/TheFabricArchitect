@@ -1,5 +1,15 @@
 package com.simibubi.mightyarchitect.foundation.utility;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.internal.Streams;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.simibubi.mightyarchitect.TheFabricArchitect;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,17 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.simibubi.mightyarchitect.TheMightyArchitect;
-
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
-
 public class FilesHelper {
 
 	public static void createFolderIfMissing(String name) {
@@ -26,7 +25,7 @@ public class FilesHelper {
 			try {
 				Files.createDirectory(Paths.get(name));
 			} catch (IOException e) {
-				TheMightyArchitect.logger.warn("Could not create Folder: " + name);
+				TheFabricArchitect.logger.warn("Could not create Folder: " + name);
 			}
 		}
 	}
@@ -93,7 +92,7 @@ public class FilesHelper {
 	}
 
 	public static CompoundTag loadJsonResourceAsNBT(String filepath) {
-		return loadJsonNBT(TheMightyArchitect.class.getClassLoader()
+		return loadJsonNBT(TheFabricArchitect.class.getClassLoader()
 			.getResourceAsStream(filepath));
 	}
 

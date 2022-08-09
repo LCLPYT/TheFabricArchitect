@@ -1,9 +1,10 @@
 package com.simibubi.mightyarchitect.foundation.utility;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.LanguageInfo;
+
 import java.text.NumberFormat;
 import java.util.Locale;
-
-import net.minecraft.client.Minecraft;
 
 public class LangNumberFormat {
 
@@ -15,10 +16,10 @@ public class LangNumberFormat {
 	}
 
 	public void update() {
-		format = NumberFormat.getInstance(Minecraft.getInstance()
-			.getLanguageManager()
-			.getSelected()
-			.getJavaLocale());
+		final LanguageInfo selected = Minecraft.getInstance()
+				.getLanguageManager()
+				.getSelected();
+		format = NumberFormat.getInstance(((LanguageInfoDuck) selected).mightyarchitect$getJavaLocale());
 		format.setMaximumFractionDigits(2);
 		format.setMinimumFractionDigits(0);
 		format.setGroupingUsed(true);

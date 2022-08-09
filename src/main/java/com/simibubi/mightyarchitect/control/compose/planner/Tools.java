@@ -1,11 +1,11 @@
 package com.simibubi.mightyarchitect.control.compose.planner;
 
+import com.google.common.collect.ImmutableList;
+import com.simibubi.mightyarchitect.gui.ScreenResources;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-import com.simibubi.mightyarchitect.gui.ScreenResources;
 
 public enum Tools {
 
@@ -72,12 +72,12 @@ public enum Tools {
 			"Change palettes in the Architect's Menu ->"
 			));
 	
-	private IComposerTool tool;
-	private String displayName;
-	private ScreenResources icon;
-	private List<String> description;
+	private final IComposerTool tool;
+	private final String displayName;
+	private final ScreenResources icon;
+	private final List<String> description;
 	
-	private Tools(IComposerTool tool, String name, ScreenResources icon, List<String> description) {
+	Tools(IComposerTool tool, String name, ScreenResources icon, List<String> description) {
 		this.tool = tool;
 		this.displayName = name;
 		this.icon = icon;

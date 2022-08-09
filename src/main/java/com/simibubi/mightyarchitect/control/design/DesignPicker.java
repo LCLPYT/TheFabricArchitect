@@ -1,9 +1,5 @@
 package com.simibubi.mightyarchitect.control.design;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.simibubi.mightyarchitect.control.compose.CylinderStack;
 import com.simibubi.mightyarchitect.control.compose.GroundPlan;
 import com.simibubi.mightyarchitect.control.compose.Room;
@@ -12,11 +8,15 @@ import com.simibubi.mightyarchitect.control.design.partials.Design;
 import com.simibubi.mightyarchitect.control.design.partials.Design.DesignInstance;
 import com.simibubi.mightyarchitect.foundation.utility.DesignHelper;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class DesignPicker {
 
 	private DesignTheme theme;
-	private Map<Room, RoomDesignMapping> roomDesigns;
-	private Map<Stack, Design> roofDesigns;
+	private final Map<Room, RoomDesignMapping> roomDesigns;
+	private final Map<Stack, Design> roofDesigns;
 
 	public DesignPicker() {
 		roomDesigns = new HashMap<>();
@@ -28,33 +28,31 @@ public class DesignPicker {
 	}
 
 	public Sketch assembleSketch(GroundPlan groundPlan, int seed) {
-		Sketch sketch = pickDesigns(groundPlan, seed);
-		return sketch;
+		return pickDesigns(groundPlan, seed);
 	}
 
 	private Sketch pickDesigns(GroundPlan groundPlan, int seed) {
 		Sketch sketch = new Sketch();
 		TemporaryDesignCache provider = new TemporaryDesignCache(roomDesigns, roofDesigns, seed);
 
-		groundPlan.forEachStack(stack -> {
-			stack.forEach(room -> {
+		groundPlan.forEachStack(stack -> stack.forEach(room -> {
 
-				List<DesignInstance> designList = room.secondaryPalette ? sketch.secondary : sketch.primary;
+			List<DesignInstance> designList = room.secondaryPalette ? sketch.secondary : sketch.primary;
 
-				if (stack instanceof CylinderStack) {
-					DesignHelper.addTower(provider, designList, theme, room.designLayer, room);
+			if (stack instanceof CylinderStack) {
+				DesignHelper.addTower(provider, designList, theme, room.designLayer, room);
 
-				} else {
-					DesignHelper.addCuboid(provider, designList, theme, room.designLayer, room);
-				}
+			} else {
+				DesignHelper.addCuboid(provider, designList, theme, room.designLayer, room);
+			}
 
-				if (room != stack.highest())
-					return;
+			if (room != stack.highest())
+				return;
 
-				DesignLayer roofLayer = DesignLayer.Roofing;
+			DesignLayer roofLayer = DesignLayer.Roofing;
 
-				switch (room.roofType) {
-				case ROOF:
+			switch (room.roofType) {
+				case ROOF -> {
 					if (stack instanceof CylinderStack) {
 						DesignHelper.addTowerRoof(provider, designList, theme, roofLayer, stack, false);
 						break;
@@ -63,25 +61,20 @@ public class DesignPicker {
 						DesignHelper.addNormalCrossRoof(provider, designList, theme, roofLayer, stack);
 						break;
 					}
-
 					DesignHelper.addNormalRoof(provider, designList, theme, roofLayer, stack);
-					break;
-
-				case FLAT_ROOF:
+				}
+				case FLAT_ROOF -> {
 					if (stack instanceof CylinderStack) {
 						DesignHelper.addTowerRoof(provider, designList, theme, roofLayer, stack, true);
 						break;
 					}
-
 					DesignHelper.addFlatRoof(provider, designList, theme, roofLayer, stack);
-					break;
-
-				default:
-					break;
 				}
+				default -> {
+				}
+			}
 
-			});
-		});
+		}));
 
 		sketch.interior = groundPlan.getInterior();
 		return sketch;
@@ -105,13 +98,11 @@ public class DesignPicker {
 	}
 
 	public void rerollRoom(Room room) {
-		if (roomDesigns.containsKey(room))
-			roomDesigns.remove(room);
+		roomDesigns.remove(room);
 	}
 
 	public void rerollRoof(Stack stack) {
-		if (roofDesigns.containsKey(stack))
-			roofDesigns.remove(stack);
+		roofDesigns.remove(stack);
 	}
 
 	public void rerollStack(Stack stack) {

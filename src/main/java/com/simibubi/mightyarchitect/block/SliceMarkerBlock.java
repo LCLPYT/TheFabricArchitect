@@ -2,7 +2,6 @@ package com.simibubi.mightyarchitect.block;
 
 import com.simibubi.mightyarchitect.AllItems;
 import com.simibubi.mightyarchitect.control.design.DesignSlice.DesignSliceTrait;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.network.chat.TextComponent;
@@ -18,11 +17,12 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 
 public class SliceMarkerBlock extends Block {
 
 	public static final BooleanProperty compass = BooleanProperty.create("compass");
-	public static final EnumProperty<DesignSliceTrait> VARIANT = EnumProperty.<DesignSliceTrait>create("variant",
+	public static final EnumProperty<DesignSliceTrait> VARIANT = EnumProperty.create("variant",
 			DesignSliceTrait.class);
 
 	public SliceMarkerBlock() {
@@ -44,12 +44,14 @@ public class SliceMarkerBlock extends Block {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level worldIn, BlockPos pos, Player player, InteractionHand handIn,
-			BlockHitResult hit) {
+	public InteractionResult use(@NotNull BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos,
+								 @NotNull Player player, @NotNull InteractionHand handIn, BlockHitResult hit) {
 		if (hit.getDirection().getAxis() == Axis.Y)
 			return InteractionResult.PASS;
-		if (AllItems.ARCHITECT_WAND.typeOf(player.getItemInHand(handIn)))
+
+		if (player.getItemInHand(handIn).getItem() == AllItems.ARCHITECT_WAND)
 			return InteractionResult.PASS;
+
 		if (worldIn.isClientSide)
 			return InteractionResult.SUCCESS;
 

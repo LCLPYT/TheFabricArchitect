@@ -1,10 +1,7 @@
 package com.simibubi.mightyarchitect.control.compose.planner;
 
-import org.apache.commons.lang3.mutable.MutableObject;
-import org.lwjgl.glfw.GLFW;
-
 import com.simibubi.mightyarchitect.AllSpecialTextures;
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.control.compose.Cuboid;
 import com.simibubi.mightyarchitect.control.compose.GroundPlan;
@@ -15,9 +12,10 @@ import com.simibubi.mightyarchitect.control.design.DesignTheme;
 import com.simibubi.mightyarchitect.control.design.DesignType;
 import com.simibubi.mightyarchitect.control.design.ThemeStatistics;
 import com.simibubi.mightyarchitect.foundation.utility.Keyboard;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.lwjgl.glfw.GLFW;
 
 public class RoomTool extends GroundPlanningToolBase {
 
@@ -87,7 +85,7 @@ public class RoomTool extends GroundPlanningToolBase {
 		if (facadeWidth > stats.MaxGableRoof || !stats.hasGables) {
 			room.roofType = stats.hasFlatRoof ? DesignType.FLAT_ROOF : DesignType.NONE;
 		} else {
-			room.roofType = stats.hasGables ? DesignType.ROOF : DesignType.NONE;
+			room.roofType = DesignType.ROOF;
 		}
 
 		lastAddedStack = new Stack(room);
@@ -182,17 +180,13 @@ public class RoomTool extends GroundPlanningToolBase {
 				xr += 4;
 			else
 				xr = 4 - xr;
-			if (xr != 0) {
-				selectedPosition = selectedPosition.east(xSize > 0 ? xr : -xr);
-			}
+			selectedPosition = selectedPosition.east(xSize > 0 ? xr : -xr);
 			int zr = (zSize + ((zSize > 0) ? 2 : -2)) % 4;
 			if (zr < 0)
 				zr += 4;
 			else
 				zr = 4 - zr;
-			if (zr != 0) {
-				selectedPosition = selectedPosition.south(zSize > 0 ? zr : -zr);
-			}
+			selectedPosition = selectedPosition.south(zSize > 0 ? zr : -zr);
 
 		} else {
 			// 3-Grid
@@ -215,14 +209,14 @@ public class RoomTool extends GroundPlanningToolBase {
 		BlockPos anchor = ArchitectManager.getModel()
 				.getAnchor();
 		BlockPos cursorPos = (anchor != null) ? selectedPosition.offset(anchor) : selectedPosition;
-		BlockPos previouslySelectedPos = (firstPosition != null) ? firstPosition.offset(anchor) : cursorPos;
+		BlockPos previouslySelectedPos = (firstPosition != null && anchor != null) ? firstPosition.offset(anchor) : cursorPos;
 
 		BlockPos size = cursorPos.subtract(previouslySelectedPos);
 		Cuboid selection = new Cuboid(previouslySelectedPos, size.getX(), 1, size.getZ());
 		selection.width += 1;
 		selection.length += 1;
 
-		MightyClient.outliner.chaseAABB(outlineKey, selection.toAABB())
+		FabricArchitectClient.outliner.chaseAABB(outlineKey, selection.toAABB())
 				.withFaceTexture(AllSpecialTextures.CHECKERED)
 				.withAlpha(0.75f)
 				.colored(0x0);
@@ -243,7 +237,7 @@ public class RoomTool extends GroundPlanningToolBase {
 	}
 
 	private void chaseText(Object key, float x, float y, float z, String text) {
-		MightyClient.outliner.chaseText(key, new Vec3(x, y, z), text)
+		FabricArchitectClient.outliner.chaseText(key, new Vec3(x, y, z), text)
 				.colored(0)
 				.coloredFaces(0xffffff)
 				.disableNormals()

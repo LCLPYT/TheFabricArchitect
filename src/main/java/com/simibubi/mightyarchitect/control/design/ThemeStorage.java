@@ -1,26 +1,18 @@
 package com.simibubi.mightyarchitect.control.design;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.simibubi.mightyarchitect.control.palette.PaletteDefinition;
 import com.simibubi.mightyarchitect.foundation.utility.FilesHelper;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.*;
+import java.util.*;
 
 public class ThemeStorage {
 
@@ -33,10 +25,10 @@ public class ThemeStorage {
 		Cattingham("cattingham_palace", 7, 2, 6);
 
 		public DesignTheme theme;
-		public String themeFolder;
-		public List<Integer> heights;
+		public final String themeFolder;
+		public final List<Integer> heights;
 
-		private IncludedThemes(String themeFolder, Integer... floorHeights) {
+		IncludedThemes(String themeFolder, Integer... floorHeights) {
 			this.themeFolder = themeFolder;
 			this.heights = Arrays.asList(floorHeights);
 		}
@@ -88,8 +80,9 @@ public class ThemeStorage {
 	public static DesignTheme createTheme(String name) {
 		if (name.isEmpty())
 			name = "My Theme";
-		DesignTheme theme = new DesignTheme(name, Minecraft.getInstance().player.getName()
-			.getString());
+		final LocalPlayer player = Minecraft.getInstance().player;
+		DesignTheme theme = new DesignTheme(name, player != null ? player.getName()
+			.getString() : "Unknown");
 		theme.setFilePath(FilesHelper.slug(name));
 		theme.setImported(true);
 		theme.setDefaultPalette(PaletteDefinition.defaultPalette());
@@ -143,9 +136,8 @@ public class ThemeStorage {
 					continue;
 
 				ListTag designs = new ListTag();
-				for (CompoundTag tag : designFiles.get(layer)
-					.get(type))
-					designs.add(tag);
+				designs.addAll(designFiles.get(layer)
+						.get(type));
 				types.put(type.name(), designs);
 			}
 			layers.put(layer.name(), types);
@@ -221,6 +213,8 @@ public class ThemeStorage {
 					} else {
 						themeFile = FilesHelper.loadJsonAsNBT("themes/" + themeFolder);
 					}
+
+					Objects.requireNonNull(themeFile, "Theme file could not be found");
 
 					themeCompound = themeFile.getCompound("Theme");
 					paletteCompound = themeFile.getCompound("Palette");

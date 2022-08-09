@@ -1,16 +1,12 @@
 package com.simibubi.mightyarchitect.gui;
 
-import java.util.List;
-import java.util.function.Consumer;
-
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.compose.planner.Tools;
 import com.simibubi.mightyarchitect.foundation.utility.LerpedFloat;
 import com.simibubi.mightyarchitect.foundation.utility.LerpedFloat.Chaser;
-
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -18,12 +14,15 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 public class ToolSelectionScreen extends Screen {
 
 	protected List<Tools> tools;
 	protected Consumer<Tools> callback;
 	public boolean focused;
-	private LerpedFloat yOffset;
+	private final LerpedFloat yOffset;
 	protected int selection;
 
 	protected int w;
@@ -97,7 +96,7 @@ public class ToolSelectionScreen extends Screen {
 		}
 
 		RenderSystem.setShaderColor(1, 1, 1, 1);
-		String translationKey = MightyClient.TOOL_MENU.getTranslatedKeyMessage()
+		String translationKey = FabricArchitectClient.TOOL_MENU.getTranslatedKeyMessage()
 			.getString()
 			.toUpperCase();
 		int width = minecraft.getWindow()

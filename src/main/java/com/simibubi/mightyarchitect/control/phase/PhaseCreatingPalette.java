@@ -1,16 +1,11 @@
 package com.simibubi.mightyarchitect.control.phase;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.Schematic;
 import com.simibubi.mightyarchitect.control.palette.Palette;
 import com.simibubi.mightyarchitect.control.palette.PaletteDefinition;
-
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -21,7 +16,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.EmptyModelData;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PhaseCreatingPalette extends PhaseBase implements IDrawBlockHighlights {
 
@@ -35,6 +33,8 @@ public class PhaseCreatingPalette extends PhaseBase implements IDrawBlockHighlig
 
 		Schematic model = getModel();
 		ClientLevel world = minecraft.level;
+		if (world == null || minecraft.player == null) return;
+
 		changed = new boolean[16];
 
 		palette = model.getCreatedPalette();
@@ -51,18 +51,20 @@ public class PhaseCreatingPalette extends PhaseBase implements IDrawBlockHighlig
 		}
 
 		model.updatePalettePreview();
-		MightyClient.renderer.display(getModel());
+		FabricArchitectClient.renderer.display(getModel());
 	}
 
 	@Override
 	public void update() {
+		if (minecraft.level == null) return;
+
 		for (int i = 0; i < 16; i++) {
 			BlockPos pos = positionFromIndex(i);
 
 			// Handle changes
 			if (minecraft.level.isEmptyBlock(pos)) {
 				PaletteDefinition paletteDef =
-					getModel().isEditingPrimary() ? getModel().getPrimary() : getModel().getSecondary();
+						getModel().isEditingPrimary() ? getModel().getPrimary() : getModel().getSecondary();
 				Palette key = grid.get(pos);
 
 				if (paletteDef.get(key) != palette.get(key)) {
@@ -103,7 +105,7 @@ public class PhaseCreatingPalette extends PhaseBase implements IDrawBlockHighlig
 			ms.translate(1 / 32f, 1 / 32f, 1 / 32f);
 			ms.scale(15 / 16f, 15 / 16f, 15 / 16f);
 			minecraft.getBlockRenderer()
-				.renderSingleBlock(state, ms, buffer, 0xF000F0, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+					.renderSingleBlock(state, ms, buffer, 0xF000F0, OverlayTexture.NO_OVERLAY);
 			ms.popPose();
 		}
 	}
@@ -111,23 +113,26 @@ public class PhaseCreatingPalette extends PhaseBase implements IDrawBlockHighlig
 	@Override
 	public void whenExited() {
 		getModel().stopPalettePreview();
-		MightyClient.renderer.setActive(false);
+		FabricArchitectClient.renderer.setActive(false);
 	}
 
 	protected void notifyChange() {
 		getModel().updatePalettePreview();
-		minecraft.player.displayClientMessage(new TextComponent("Updating Preview..."), true);
-		MightyClient.renderer.update();
+		if (minecraft.player != null)
+			minecraft.player.displayClientMessage(new TextComponent("Updating Preview..."), true);
+		FabricArchitectClient.renderer.update();
 	}
 
 	static final Object textKey = new Object();
 
 	@Override
 	public void tickHighlightOutlines() {
+		if (minecraft.player == null) return;
+
 		Vec3 from = minecraft.player.getEyePosition();
 		Vec3 to = from.add(minecraft.player.getLookAngle()
-			.normalize()
-			.scale(10));
+				.normalize()
+				.scale(10));
 
 		for (int i = 0; i < 16; i++) {
 			BlockPos pos = positionFromIndex(i);
@@ -136,29 +141,29 @@ public class PhaseCreatingPalette extends PhaseBase implements IDrawBlockHighlig
 			// Render Outline
 			boolean b = changed[i];
 			boolean s = bb.clip(from, to)
-				.isPresent();
+					.isPresent();
 
 			if (s)
 				sendStatusMessage(grid.get(pos)
-					.getDisplayName());
+						.getDisplayName());
 
-			MightyClient.outliner.showAABB("pallete" + i, bb)
-				.lineWidth(b || s ? 1 / 16f : 1 / 24f)
-				.colored(s ? 0x6677ee : b ? 0xccccdd : 0x666677);
+			FabricArchitectClient.outliner.showAABB("pallete" + i, bb)
+					.lineWidth(b || s ? 1 / 16f : 1 / 24f)
+					.colored(s ? 0x6677ee : b ? 0xccccdd : 0x666677);
 		}
 
 	}
 
 	private BlockPos positionFromIndex(int index) {
 		return center.east(-3 + (index % 4) * 2)
-			.south(-3 + (index / 4) * 2);
+				.south(-3 + (index / 4) * 2);
 	}
 
 	@Override
 	public List<String> getToolTip() {
 		return ImmutableList.of("The Ghost blocks show the individual materials used in this build.",
-			"Modify the palette by placing blocks into the marked areas. You do not have to fill all the gaps.",
-			"Once finished, make sure to save it. [F]");
+				"Modify the palette by placing blocks into the marked areas. You do not have to fill all the gaps.",
+				"Once finished, make sure to save it. [F]");
 	}
 
 }

@@ -1,21 +1,14 @@
 package com.simibubi.mightyarchitect.control.design;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-
 import com.google.common.collect.ImmutableList;
 import com.simibubi.mightyarchitect.control.compose.Room;
 import com.simibubi.mightyarchitect.control.design.partials.Design.DesignInstance;
 import com.simibubi.mightyarchitect.control.palette.BlockOrientation;
 import com.simibubi.mightyarchitect.control.palette.Palette;
 import com.simibubi.mightyarchitect.control.palette.PaletteBlockInfo;
-
 import net.minecraft.core.BlockPos;
+
+import java.util.*;
 
 public class Sketch {
 
@@ -77,14 +70,14 @@ public class Sketch {
 			
 			boolean trimAbove = false;
 			for (Room trim : interior) {
-				if (trimAbove)
-					continue;
 				if (trim.height > 1)
 					continue;
 				if (trim.y != cuboid.y + cuboid.height)
 					continue;
-				if (trim.x <= cuboid.x && trim.z <= cuboid.z && trim.x + trim.width >= cuboid.x + cuboid.width && trim.z + trim.length >= cuboid.z + cuboid.length)
-					trimAbove = true;				
+				if (trim.x <= cuboid.x && trim.z <= cuboid.z && trim.x + trim.width >= cuboid.x + cuboid.width && trim.z + trim.length >= cuboid.z + cuboid.length) {
+					trimAbove = true;
+					break;
+				}
 			}
 			if (trimAbove)
 				continue;

@@ -1,114 +1,116 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        jcenter()
-        mavenCentral()
-		maven { url = 'https://maven.parchmentmc.org' }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: "${forgegradle_version}", changing: true
-        classpath "org.parchmentmc:librarian:${librarian_version}"
-    }
+/*
+Build file partially inspired by Porting-Lib: https://github.com/Fabricators-of-Create/Porting-Lib/blob/63460046a8a06339a7ab79d3db1dcf2ad92b92e0/build.gradle.
+ */
+
+//file:noinspection GroovyAssignabilityCheck
+//file:noinspection GroovyAccessibility
+plugins {
+    id 'fabric-loom'
+    id 'maven-publish'
+    id 'gradle-build-utils'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
+Properties props = loadProperties.call('publish.properties')
 
-version = "mc${minecraft_version}_v${mod_version}"
-group = 'com.simibubi.mightyarchitect' 
-archivesBaseName = 'mightyarchitect'
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+archivesBaseName = project.archives_base_name
+version = "mc${minecraft_version}_v${gitVersion.call()}"
+group = project.maven_group
 
 repositories {
-    maven {
-        //location of the maven for mixed mappings
-        name = "tterrag maven"
-        url = "https://maven.tterrag.com/"
-    }
-	maven {
-        // Location of the maven that hosts JEI files (and TiC)
-        name 'Progwml6 maven'
-        url 'https://dvs1.progwml6.com/files/maven'
-    }
-}
+    mavenCentral()
 
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
-minecraft {
-    mappings channel: 'parchment', version: "${parchment_version}-${minecraft_version}"
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-    
-    runs {
-		client {
-            workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'info'
-            mods {
-                mightyarchitect {
-                    source sourceSets.main
-                }
-            }
-        }
+    // ModMenu
+    maven { url = "https://maven.terraformersmc.com/releases/" }
 
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'info'
-            mods {
-                mightyarchitect {
-                    source sourceSets.main
-                }
-            }
-        }
+    // Mappings
+    maven { url = "https://maven.parchmentmc.org" }
 
-        data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'mightyarchitect', '--all', '--output', file('src/generated/resources/')
-            mods {
-                mightyarchitect {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
+    // first-party libraries
+    maven { url "https://repo.lclpnet.work/repository/internal" }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    runtimeOnly fg.deobf("mezz.jei:jei-${jei_minecraft_version}:${jei_version}")
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings(loom.layered {
+        it.parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_version}@zip")
+        it.officialMojangMappings { nameSyntheticMembers = false }
+    })
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // modRuntimeOnly fg.deobf("mezz.jei:jei-${jei_minecraft_version}:${jei_version}")
+
+    /* other Java dependencies */
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/mightyarchitect.accesswidener")
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+
+    def targetVersion = 17
+    if (JavaVersion.current().isJava9Compatible()) {
+        it.options.release.set(targetVersion)
+    }
+}
+
+java {
+    withSourcesJar()
 }
 
 jar {
-    manifest {
-        attributes([
-            "Specification-Title": "mightyarchitect",
-            "Specification-Vendor": "simibubi",
-            "Specification-Version": "1", 
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"simibubi",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+    from("LICENSE.md") {
+        rename { "${it}_${project.archivesBaseName}"}
     }
 }
 
-def reobfFile = file("$buildDir/reobfJar/output.jar")
-def reobfArtifact = artifacts.add('default', reobfFile) {
-    type 'jar'
-    builtBy 'reobfJar'
-}
-
+// configure the maven publication
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact reobfArtifact
+            artifactId = project.archives_base_name
+
+            from components.java
+
+            pom {
+                name = 'The Fabric Architect'
+                description = 'Design elaborate buildings within a minute!'
+            }
         }
     }
+
     repositories {
         maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
+            def env = System.getenv()
+            if (Arrays.stream("DEPLOY_URL", "DEPLOY_USER", "DEPLOY_PASSWORD").allMatch(env.&containsKey)) {
+                credentials {
+                    username env.get("DEPLOY_USER")
+                    password env.get("DEPLOY_PASSWORD")
+                }
+                url env.get("DEPLOY_URL")
+            }
+            else if (Arrays.stream("mavenHost", "mavenUser", "mavenPassword").allMatch(props.&containsKey)) {
+                credentials {
+                    username props.getProperty('mavenUser')
+                    password props.getProperty('mavenPassword')
+                }
+                url props.getProperty('mavenHost')
+            } else {
+                url "file:///${project.projectDir}/repo"
+            }
         }
     }
 }

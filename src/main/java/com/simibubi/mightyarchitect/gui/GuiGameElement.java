@@ -1,7 +1,5 @@
 package com.simibubi.mightyarchitect.gui;
 
-import javax.annotation.Nullable;
-
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
 import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
@@ -12,13 +10,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import com.simibubi.mightyarchitect.foundation.utility.ColorHelper;
 import com.simibubi.mightyarchitect.foundation.utility.VecHelper;
-
+import com.simibubi.mightyarchitect.mixin.client.ItemRendererAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -34,9 +28,8 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelProperty;
+
+import javax.annotation.Nullable;
 
 public class GuiGameElement {
 
@@ -197,7 +190,7 @@ public class GuiGameElement {
 			Lighting.setupForFlatItems();
 			blockRenderer.getModelRenderer()
 				.renderModel(ms.last(), vb, blockState, blockmodel, (float) rgb.x, (float) rgb.y, (float) rgb.z,
-					0xF000F0, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+					0xF000F0, OverlayTexture.NO_OVERLAY);
 			buffer.endBatch();
 			Lighting.setupFor3DItems();
 		}
@@ -216,8 +209,7 @@ public class GuiGameElement {
 				RenderType renderType, VertexConsumer vb, PoseStack ms) {
 			if (blockState.getBlock() instanceof FireBlock) {
 				Lighting.setupForFlatItems();
-				blockRenderer.renderSingleBlock(blockState, ms, buffer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY,
-						VirtualEmptyModelData.INSTANCE);
+				blockRenderer.renderSingleBlock(blockState, ms, buffer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
 				buffer.endBatch();
 				Lighting.setupFor3DItems();
 				return;
@@ -260,8 +252,7 @@ public class GuiGameElement {
 			ItemRenderer renderer = Minecraft.getInstance().getItemRenderer();
 			BakedModel bakedModel = renderer.getModel(stack, null, null, 0);
 
-
-			renderer.textureManager.getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
+			((ItemRendererAccessor) renderer).getTextureManager().getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
 			RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
 			RenderSystem.enableBlend();
 			RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -284,27 +275,6 @@ public class GuiGameElement {
 			}
 
 			matrixStack.popPose();
-		}
-
-	}
-
-	public enum VirtualEmptyModelData implements IModelData {
-
-		INSTANCE;
-
-		@Override
-		public boolean hasProperty(ModelProperty<?> prop) {
-			return false;
-		}
-
-		@Override
-		public <T> T getData(ModelProperty<T> prop) {
-			return null;
-		}
-
-		@Override
-		public <T> T setData(ModelProperty<T> prop, T data) {
-			return null;
 		}
 
 	}

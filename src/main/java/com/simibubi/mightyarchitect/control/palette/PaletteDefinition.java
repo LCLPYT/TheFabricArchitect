@@ -1,9 +1,5 @@
 package com.simibubi.mightyarchitect.control.palette;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +12,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PaletteDefinition {
 
@@ -46,11 +46,12 @@ public class PaletteDefinition {
 		return defaultPalette;
 	}
 
+	@Override
 	public PaletteDefinition clone() {
 		PaletteDefinition clone = new PaletteDefinition(name);
 		clone.clear = defaultPalette().clear();
 		clone.definition = new HashMap<>(defaultPalette().getDefinition());
-		definition.forEach((key, value) -> clone.definition.put(key, value));
+		clone.definition.putAll(definition);
 		clone.definition.put(Palette.CLEAR, Blocks.BARRIER.defaultBlockState());
 		return clone;
 	}
@@ -109,9 +110,9 @@ public class PaletteDefinition {
 		palette.putString("Name", getName());
 		Palette[] values = Palette.values();
 
-		for (int i = 0; i < values.length; i++) {
-			CompoundTag state = NbtUtils.writeBlockState(get(values[i]));
-			palette.put(values[i].name(), state);
+		for (Palette value : values) {
+			CompoundTag state = NbtUtils.writeBlockState(get(value));
+			palette.put(value.name(), state);
 		}
 
 		compound.put("Palette", palette);
@@ -188,15 +189,12 @@ public class PaletteDefinition {
 		}
 
 		// contains but rotated
-		Palette keyIgnoreRotation = getKeyIgnoreRotation(state);
-		return keyIgnoreRotation;
+		return getKeyIgnoreRotation(state);
 	}
 
 	protected Palette getKeyIgnoreRotation(BlockState state) {
 		Map<Block, Palette> scanMap = new HashMap<>();
-		definition.forEach((palette, block) -> {
-			scanMap.put(block.getBlock(), palette);
-		});
+		definition.forEach((palette, block) -> scanMap.put(block.getBlock(), palette));
 		
 		if (scanMap.containsKey(state.getBlock()))
 			return scanMap.get(state.getBlock());

@@ -1,16 +1,14 @@
 package com.simibubi.mightyarchitect.foundation.utility;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import com.simibubi.mightyarchitect.TheMightyArchitect;
-
+import com.simibubi.mightyarchitect.TheFabricArchitect;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class Lang {
 
@@ -37,7 +35,7 @@ public class Lang {
 	//
 
 	public static LangBuilder builder() {
-		return new LangBuilder(TheMightyArchitect.ID);
+		return new LangBuilder(TheFabricArchitect.MOD_ID);
 	}
 
 	public static LangBuilder builder(String namespace) {
@@ -53,11 +51,6 @@ public class Lang {
 
 	public static LangBuilder itemName(ItemStack stack) {
 		return builder().add(stack.getHoverName()
-			.copy());
-	}
-
-	public static LangBuilder fluidName(FluidStack stack) {
-		return builder().add(stack.getDisplayName()
 			.copy());
 	}
 

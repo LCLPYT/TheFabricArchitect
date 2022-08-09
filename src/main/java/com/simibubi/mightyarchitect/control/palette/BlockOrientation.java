@@ -1,7 +1,5 @@
 package com.simibubi.mightyarchitect.control.palette;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
@@ -29,10 +27,10 @@ public enum BlockOrientation {
 	BOTTOM_NORTH(Half.BOTTOM, Direction.NORTH), BOTTOM_SOUTH(Half.BOTTOM, Direction.SOUTH),
 	BOTTOM_EAST(Half.BOTTOM, Direction.EAST), BOTTOM_WEST(Half.BOTTOM, Direction.WEST);
 
-	private Half half;
-	private Direction facing;
+	private final Half half;
+	private final Direction facing;
 
-	private BlockOrientation(Half half, Direction facing) {
+	BlockOrientation(Half half, Direction facing) {
 		this.half = half;
 		this.facing = facing;
 	}
@@ -87,7 +85,7 @@ public enum BlockOrientation {
 		if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING))
 			facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
 
-		if (state.getBlock() instanceof TrapDoorBlock)
+		if (facing != null && state.getBlock() instanceof TrapDoorBlock)
 			facing = facing.getOpposite();
 
 		if (state.hasProperty(BlockStateProperties.AXIS))
@@ -110,7 +108,7 @@ public enum BlockOrientation {
 
 	public BlockState apply(BlockState state, boolean forceAxis) {
 		BlockState newState = state;
-		newState = newState.rotate(Minecraft.getInstance().level, BlockPos.ZERO, getRotation());
+		newState = newState.rotate(getRotation());
 
 		if (hasHalf() && state.hasProperty(BlockStateProperties.HALF))
 			newState = newState.setValue(BlockStateProperties.HALF, half);
@@ -149,16 +147,12 @@ public enum BlockOrientation {
 		if (!hasFacing())
 			return Rotation.NONE;
 
-		switch (facing) {
-		case EAST:
-			return Rotation.COUNTERCLOCKWISE_90;
-		case NORTH:
-			return Rotation.CLOCKWISE_180;
-		case WEST:
-			return Rotation.CLOCKWISE_90;
-		default:
-			return Rotation.NONE;
-		}
+		return switch (facing) {
+			case EAST -> Rotation.COUNTERCLOCKWISE_90;
+			case NORTH -> Rotation.CLOCKWISE_180;
+			case WEST -> Rotation.CLOCKWISE_90;
+			default -> Rotation.NONE;
+		};
 	}
 
 	public boolean hasFacing() {

@@ -26,10 +26,10 @@ public enum Palette {
 	// dynamic
 	CLEAR("Clearing Material", 10);
 	
-	private int priority;
-	private String displayName;
+	private final int priority;
+	private final String displayName;
 	
-	private Palette(String displayName, int priority) {
+	Palette(String displayName, int priority) {
 		this.displayName = displayName;
 		this.priority = priority;
 	}

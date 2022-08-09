@@ -7,7 +7,9 @@ import com.simibubi.mightyarchitect.control.phase.ArchitectPhases;
 import com.simibubi.mightyarchitect.control.phase.export.PhaseEditTheme;
 import com.simibubi.mightyarchitect.gui.DesignExporterScreen;
 import com.simibubi.mightyarchitect.gui.ScreenHelper;
-
+import com.simibubi.mightyarchitect.util.Env;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionHand;
@@ -20,9 +22,7 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.DistExecutor;
+import org.jetbrains.annotations.NotNull;
 
 public class ArchitectWandItem extends Item {
 
@@ -34,37 +34,46 @@ public class ArchitectWandItem extends Item {
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
 		Player player = context.getPlayer();
+		if (player == null) return InteractionResult.FAIL;
+
 		Level world = context.getLevel();
 
-		if (!world.isClientSide)
+		if (!world.isClientSide || !Env.isClient())
 			return InteractionResult.SUCCESS;
 
 		if (player.isShiftKeyDown()) {
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> openGui());
+			openGui();
 			return InteractionResult.SUCCESS;
 		}
 
 		BlockPos anchor = context.getClickedPos();
 		BlockState blockState = world.getBlockState(anchor);
 
-		DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-			() -> () -> handleUseOnDesignAnchor(player, world, anchor, blockState));
+		handleUseOnDesignAnchor(player, world, anchor, blockState);
 
-		player.getCooldowns()
-			.addCooldown(this, 5);
+		player.getCooldowns().addCooldown(this, 5);
+
 		return InteractionResult.SUCCESS;
 	}
 
-	@OnlyIn(value = Dist.CLIENT)
+	@Override
+	public InteractionResultHolder<ItemStack> use(Level worldIn, @NotNull Player playerIn, @NotNull InteractionHand handIn) {
+		if (worldIn.isClientSide && Env.isClient()) {
+			handleRightClick(playerIn);
+			playerIn.getCooldowns().addCooldown(this, 5);
+		}
+		return super.use(worldIn, playerIn, handIn);
+	}
+
+	@Environment(EnvType.CLIENT)
 	protected void resetVisualization() {
 		PhaseEditTheme.resetVisualization();
 	}
 
-	@OnlyIn(value = Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	protected void handleUseOnDesignAnchor(Player player, Level world, BlockPos anchor, BlockState blockState) {
-		if (AllBlocks.DESIGN_ANCHOR.typeOf(blockState)) {
-			if (!ArchitectManager.inPhase(ArchitectPhases.EditingThemes))
-				return;
+		if (blockState.getBlock() == AllBlocks.DESIGN_ANCHOR) {
+			if (!ArchitectManager.inPhase(ArchitectPhases.EditingThemes)) return;
 
 			String name = DesignExporter.exportDesign(world, anchor);
 			if (!name.isEmpty()) {
@@ -72,24 +81,14 @@ public class ArchitectWandItem extends Item {
 			}
 
 		} else {
-			if (!ArchitectManager.inPhase(ArchitectPhases.EditingThemes))
-				return;
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> this::resetVisualization);
+			if (!ArchitectManager.inPhase(ArchitectPhases.EditingThemes)) return;
+
+			this.resetVisualization();
 		}
 	}
 
-	@Override
-	public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
-		if (worldIn.isClientSide) {
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> handleRightClick(worldIn, playerIn, handIn));
-			playerIn.getCooldowns()
-				.addCooldown(this, 5);
-		}
-		return super.use(worldIn, playerIn, handIn);
-	}
-
-	@OnlyIn(value = Dist.CLIENT)
-	protected void handleRightClick(Level worldIn, Player playerIn, InteractionHand handIn) {
+	@Environment(EnvType.CLIENT)
+	protected void handleRightClick(Player playerIn) {
 		if (!ArchitectManager.inPhase(ArchitectPhases.EditingThemes))
 			return;
 
@@ -101,16 +100,11 @@ public class ArchitectWandItem extends Item {
 		}
 	}
 
-	@OnlyIn(value = Dist.CLIENT)
+	@Environment(EnvType.CLIENT)
 	private void openGui() {
 		if (!ArchitectManager.inPhase(ArchitectPhases.EditingThemes))
 			return;
+
 		ScreenHelper.open(new DesignExporterScreen());
 	}
-
-	@Override
-	public int getItemStackLimit(ItemStack stack) {
-		return 1;
-	}
-
 }

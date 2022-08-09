@@ -1,10 +1,7 @@
 package com.simibubi.mightyarchitect.foundation;
 
-import java.util.SortedMap;
-
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
@@ -12,6 +9,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.resources.model.ModelBakery;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.SortedMap;
 
 public class SuperRenderTypeBuffer implements MultiBufferSource {
 
@@ -38,7 +38,7 @@ public class SuperRenderTypeBuffer implements MultiBufferSource {
 	}
 
 	@Override
-	public VertexConsumer getBuffer(RenderType type) {
+	public VertexConsumer getBuffer(@NotNull RenderType type) {
 		return defaultBuffer.bufferSource.getBuffer(type);
 	}
 
@@ -82,9 +82,7 @@ public class SuperRenderTypeBuffer implements MultiBufferSource {
 			put(map, RenderType.entityGlintDirect());
 			put(map, RenderType.waterMask());
 			put(map, RenderTypes.getOutlineSolid());
-			ModelBakery.DESTROY_TYPES.forEach((p_173062_) -> {
-				put(map, p_173062_);
-			});
+			ModelBakery.DESTROY_TYPES.forEach(renderType -> put(map, renderType));
 		});
 		private final MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediateWithBuffers(fixedBuffers, new BufferBuilder(256));
 

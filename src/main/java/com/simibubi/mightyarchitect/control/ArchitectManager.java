@@ -1,18 +1,8 @@
 package com.simibubi.mightyarchitect.control;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-
-import org.apache.commons.io.IOUtils;
-import org.lwjgl.glfw.GLFW;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.mightyarchitect.AllPackets;
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.compose.GroundPlan;
 import com.simibubi.mightyarchitect.control.design.DesignExporter;
 import com.simibubi.mightyarchitect.control.design.DesignTheme;
@@ -23,40 +13,40 @@ import com.simibubi.mightyarchitect.control.phase.ArchitectPhases;
 import com.simibubi.mightyarchitect.control.phase.IArchitectPhase;
 import com.simibubi.mightyarchitect.control.phase.IDrawBlockHighlights;
 import com.simibubi.mightyarchitect.control.phase.IRenderGameOverlay;
+import com.simibubi.mightyarchitect.event.KeyInputCallback;
+import com.simibubi.mightyarchitect.event.MouseButtonPressedCallback;
+import com.simibubi.mightyarchitect.event.MouseScrollCallback;
 import com.simibubi.mightyarchitect.foundation.utility.FilesHelper;
 import com.simibubi.mightyarchitect.foundation.utility.Keyboard;
-import com.simibubi.mightyarchitect.gui.ArchitectMenuScreen;
-import com.simibubi.mightyarchitect.gui.DesignExporterScreen;
-import com.simibubi.mightyarchitect.gui.PalettePickerScreen;
-import com.simibubi.mightyarchitect.gui.ScreenHelper;
-import com.simibubi.mightyarchitect.gui.TextInputPromptScreen;
-import com.simibubi.mightyarchitect.gui.ThemeSettingsScreen;
-import com.simibubi.mightyarchitect.networking.InstantPrintPacket;
-
+import com.simibubi.mightyarchitect.gui.*;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent.KeyInputEvent;
-import net.minecraftforge.client.event.InputEvent.MouseInputEvent;
-import net.minecraftforge.client.event.InputEvent.MouseScrollEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import org.apache.commons.io.IOUtils;
+import org.lwjgl.glfw.GLFW;
 
-@EventBusSubscriber(value = Dist.CLIENT)
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+@Environment(EnvType.CLIENT)
 public class ArchitectManager {
 
 	private static ArchitectPhases phase = ArchitectPhases.Empty;
 	private static Schematic model = new Schematic();
-	private static ArchitectMenuScreen menu = new ArchitectMenuScreen();
+	private static final ArchitectMenuScreen menu = new ArchitectMenuScreen();
 
 	public static boolean testRun = false;
 
@@ -111,7 +101,7 @@ public class ArchitectManager {
 		GroundPlan groundPlan = model.getGroundPlan();
 		model.setSketch(groundPlan.theme.getDesignPicker()
 			.assembleSketch(groundPlan, model.seed));
-		MightyClient.renderer.update();
+		FabricArchitectClient.renderer.update();
 	}
 
 	public static void createPalette(boolean primary) {
@@ -140,9 +130,8 @@ public class ArchitectManager {
 		Minecraft mc = Minecraft.getInstance();
 
 		if (mc.hasSingleplayerServer()) {
-			for (InstantPrintPacket packet : getModel().getPackets())
-				AllPackets.channel.sendToServer(packet);
-			MightyClient.renderer.setActive(false);
+			getModel().getPackets().forEach(FabricArchitectClient::sendToServer);
+			FabricArchitectClient.renderer.setActive(false);
 			status("Printed result into world.");
 			unload();
 			return;
@@ -179,16 +168,20 @@ public class ArchitectManager {
 		status("Saved as " + filepath);
 
 		BlockPos pos = model.getAnchor()
-			.offset(((TemplateBlockAccess) model.getMaterializedSketch()).getBounds()
+			.offset(model.getMaterializedSketch().getBounds()
 				.getOrigin());
 		TextComponent component = new TextComponent("Deploy Schematic at: " + ChatFormatting.BLUE + "["
 			+ pos.getX() + "," + pos.getY() + "," + pos.getZ() + "]");
-		Minecraft.getInstance().player.displayClientMessage(component, false);
+		final LocalPlayer player = Minecraft.getInstance().player;
+		if (player != null)
+			player.displayClientMessage(component, false);
 		unload();
 	}
 
 	public static void status(String message) {
-		Minecraft.getInstance().player.displayClientMessage(new TextComponent(message), true);
+		final LocalPlayer player = Minecraft.getInstance().player;
+		if (player != null)
+			player.displayClientMessage(new TextComponent(message), true);
 	}
 
 	public static void pickPalette() {
@@ -258,8 +251,15 @@ public class ArchitectManager {
 
 	// Events
 
-	@SubscribeEvent
-	public static void onClientTick(ClientTickEvent event) {
+	public static void registerEvents() {
+		ClientTickEvents.START_CLIENT_TICK.register(ArchitectManager::onClientTick);
+		MouseScrollCallback.EVENT.register(ArchitectManager::onMouseScrolled);
+		MouseButtonPressedCallback.EVENT.register(ArchitectManager::onClick);
+		KeyInputCallback.EVENT.register(ArchitectManager::onKeyTyped);
+		HudRenderCallback.EVENT.register(ArchitectManager::onDrawGameOverlay);
+	}
+
+	public static void onClientTick(Minecraft mc) {
 		if (Minecraft.getInstance().level == null) {
 			if (!inPhase(ArchitectPhases.Paused) && !model.isEmpty())
 				enterPhase(ArchitectPhases.Paused);
@@ -272,13 +272,12 @@ public class ArchitectManager {
 
 	}
 
-	@SubscribeEvent
-	public static void onMouseScrolled(MouseScrollEvent event) {
+	public static boolean onMouseScrolled(MouseHandler handler, double amount) {
 		if (Minecraft.getInstance().screen != null)
-			return;
-		if (phase.getPhaseHandler()
-			.onScroll((int) Math.signum(event.getScrollDelta())))
-			event.setCanceled(true);
+			return false;
+
+		return phase.getPhaseHandler()
+				.onScroll((int) Math.signum(amount));
 	}
 
 	public static void render(PoseStack ms, MultiBufferSource buffer) {
@@ -287,19 +286,16 @@ public class ArchitectManager {
 				.render(ms, buffer);
 	}
 
-	@SubscribeEvent
-	public static void onClick(MouseInputEvent event) {
+	public static void onClick(int button, int modifiers) {
 		if (Minecraft.getInstance().screen != null)
 			return;
-		if (event.getAction() != Keyboard.PRESS)
-			return;
+
 		phase.getPhaseHandler()
-			.onClick(event.getButton());
+			.onClick(button);
 	}
 
-	@SubscribeEvent
-	public static void onKeyTyped(KeyInputEvent event) {
-		if (event.getKey() == GLFW.GLFW_KEY_ESCAPE && event.getAction() == Keyboard.PRESS) {
+	public static void onKeyTyped(int key, int scanCode, int action, int modifiers) {
+		if (key == GLFW.GLFW_KEY_ESCAPE && action == Keyboard.PRESS) {
 			if (inPhase(ArchitectPhases.Composing) || inPhase(ArchitectPhases.Previewing)) {
 				enterPhase(ArchitectPhases.Paused);
 				menu.setVisible(false);
@@ -308,15 +304,15 @@ public class ArchitectManager {
 		}
 		if (Minecraft.getInstance().screen != null)
 			return;
-		if (MightyClient.COMPOSE.consumeClick()) {
+		if (FabricArchitectClient.COMPOSE.consumeClick()) {
 			if (!menu.isFocused())
 				openMenu();
 			return;
 		}
 
-		boolean released = event.getAction() == Keyboard.RELEASE;
+		boolean released = action == Keyboard.RELEASE;
 		phase.getPhaseHandler()
-			.onKey(event.getKey(), released);
+			.onKey(key, released);
 	}
 
 	public static void openMenu() {
@@ -324,7 +320,6 @@ public class ArchitectManager {
 		ScreenHelper.open(menu);
 		menu.setFocused(true);
 		menu.setVisible(true);
-		return;
 	}
 
 	public static void tickBlockHighlightOutlines() {
@@ -333,23 +328,16 @@ public class ArchitectManager {
 			((IDrawBlockHighlights) phaseHandler).tickHighlightOutlines();
 	}
 
-	@SubscribeEvent
-	public static void onDrawGameOverlay(RenderGameOverlayEvent.Pre event) {
-		if (event.getType() != ElementType.ALL)
-			return;
-
+	public static void onDrawGameOverlay(PoseStack stack, float partialTicks) {
 		IArchitectPhase phaseHandler = phase.getPhaseHandler();
 		if (phaseHandler instanceof IRenderGameOverlay) {
-			((IRenderGameOverlay) phaseHandler).renderGameOverlay(event);
+			((IRenderGameOverlay) phaseHandler).renderGameOverlay(stack, partialTicks);
 		}
 
 		menu.drawPassive();
 		RenderSystem.enableBlend();
 		RenderSystem.enableTexture();
 	}
-
-	@SubscribeEvent
-	public static void onItemRightClick(PlayerInteractEvent.RightClickBlock event) {}
 
 	public static void resetSchematic() {
 		model = new Schematic();

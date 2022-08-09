@@ -1,13 +1,12 @@
 package com.simibubi.mightyarchitect.control.design.partials;
 
-import java.util.List;
-import java.util.Map;
-
 import com.simibubi.mightyarchitect.control.design.DesignSlice;
 import com.simibubi.mightyarchitect.control.palette.PaletteBlockInfo;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+
+import java.util.List;
+import java.util.Map;
 
 public class Corner extends Design {
 	
@@ -38,7 +37,7 @@ public class Corner extends Design {
 					PaletteBlockInfo block = layer.getBlockAt(x, z, instance.rotationY, instance.flippedX);
 					if (block == null)
 						continue;
-					BlockPos pos = rotateAroundZero(new BlockPos(instance.flippedX? - x : x, y, instance.flippedX? z : z).offset(totalShift), instance.rotationY)
+					BlockPos pos = rotateAroundZero(new BlockPos(instance.flippedX? - x : x, y, z).offset(totalShift), instance.rotationY)
 							.offset(position);
 					putBlock(blocks, pos, block);
 				}

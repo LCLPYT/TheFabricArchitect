@@ -1,8 +1,5 @@
 package com.simibubi.mightyarchitect.foundation;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.DrawState;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -10,13 +7,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector4f;
-
+import com.simibubi.mightyarchitect.mixin.client.BufferBuilderAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class SuperByteBuffer {
 
@@ -50,7 +50,7 @@ public class SuperByteBuffer {
 		ByteBuffer rendered = state.getSecond();
 		rendered.order(ByteOrder.nativeOrder()); // Vanilla bug, endianness does not carry over into sliced buffers
 
-		formatSize = buf.getVertexFormat()
+		formatSize = ((BufferBuilderAccessor) buf).getFormat()
 			.getVertexSize();
 		int size = state.getFirst()
 			.vertexCount() * formatSize;

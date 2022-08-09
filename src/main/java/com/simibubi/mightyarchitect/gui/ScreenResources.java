@@ -2,8 +2,7 @@ package com.simibubi.mightyarchitect.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.mightyarchitect.TheMightyArchitect;
-
+import com.simibubi.mightyarchitect.TheFabricArchitect;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -72,15 +71,15 @@ public enum ScreenResources {
 	public static final int FONT_COLOR = 0x373F5A;
 	
 	public final ResourceLocation location;
-	public int width, height;
-	public int startX, startY;
+	public final int width, height;
+	public final int startX, startY;
 	
-	private ScreenResources(String location, int width, int height) {
+	ScreenResources(String location, int width, int height) {
 		this(location, 0, 0, width, height);
 	}
 	
-	private ScreenResources(String location, int startX, int startY, int width, int height) {
-		this.location = new ResourceLocation(TheMightyArchitect.ID, "textures/gui/" + location);
+	ScreenResources(String location, int startX, int startY, int width, int height) {
+		this.location = new ResourceLocation(TheFabricArchitect.MOD_ID, "textures/gui/" + location);
 		this.width = width; this.height = height;
 		this.startX = startX; this.startY = startY;
 	}

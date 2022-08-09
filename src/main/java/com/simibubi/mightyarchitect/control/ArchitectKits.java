@@ -2,11 +2,10 @@ package com.simibubi.mightyarchitect.control;
 
 import com.simibubi.mightyarchitect.AllBlocks;
 import com.simibubi.mightyarchitect.AllItems;
-import com.simibubi.mightyarchitect.AllPackets;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.design.DesignExporter;
 import com.simibubi.mightyarchitect.control.palette.Palette;
 import com.simibubi.mightyarchitect.networking.SetHotbarItemPacket;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.Item;
@@ -17,9 +16,9 @@ import net.minecraft.world.level.block.state.BlockState;
 public class ArchitectKits {
 
 	public static void ExporterToolkit() {
-		setHotbarItem(0, AllItems.ARCHITECT_WAND.get());
-		setHotbarBlock(1, AllBlocks.DESIGN_ANCHOR.get());
-		setHotbarBlock(2, AllBlocks.SLICE_MARKER.get());
+		setHotbarItem(0, AllItems.ARCHITECT_WAND);
+		setHotbarBlock(1, AllBlocks.DESIGN_ANCHOR);
+		setHotbarBlock(2, AllBlocks.SLICE_MARKER);
 		clearHotbarItem(3);
 		setHotbarBlock(4, Palette.CLEAR);
 		setHotbarBlock(5, Palette.FLOOR);
@@ -73,7 +72,7 @@ public class ArchitectKits {
 	}
 
 	private static void setHotbarItem(int slot, ItemStack stack) {
-		AllPackets.channel.sendToServer(new SetHotbarItemPacket(slot, stack));
+		FabricArchitectClient.sendToServer(new SetHotbarItemPacket(slot, stack));
 	}
 
 	private static void setHotbarBlock(int slot, Block block) {

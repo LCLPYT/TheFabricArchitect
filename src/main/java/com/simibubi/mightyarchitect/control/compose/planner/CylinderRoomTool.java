@@ -1,7 +1,7 @@
 package com.simibubi.mightyarchitect.control.compose.planner;
 
 import com.simibubi.mightyarchitect.AllSpecialTextures;
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.control.compose.Cuboid;
 import com.simibubi.mightyarchitect.control.compose.CylinderStack;
@@ -12,7 +12,6 @@ import com.simibubi.mightyarchitect.control.design.DesignTheme;
 import com.simibubi.mightyarchitect.control.design.DesignType;
 import com.simibubi.mightyarchitect.control.design.ThemeStatistics;
 import com.simibubi.mightyarchitect.foundation.utility.RaycastHelper;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -35,6 +34,8 @@ public class CylinderRoomTool extends RoomTool {
 		LocalPlayer player = Minecraft.getInstance().player;
 		transparentStacks.clear();
 
+		if (player == null) return;
+
 		BlockHitResult trace = RaycastHelper.rayTraceRange(player.level, player, 75);
 		if (trace != null && trace.getType() == Type.BLOCK) {
 
@@ -54,13 +55,6 @@ public class CylinderRoomTool extends RoomTool {
 		} else {
 			selectedPosition = null;
 		}
-
-		if (firstPosition == null)
-			return;
-
-		if (selectedPosition == null)
-			return;
-
 	}
 
 	@Override
@@ -101,7 +95,7 @@ public class CylinderRoomTool extends RoomTool {
 		if (radius > stats.MaxConicalRoofRadius || !stats.hasConicalRoof) {
 			room.roofType = stats.hasFlatTowerRoof ? DesignType.FLAT_ROOF : DesignType.NONE;
 		} else {
-			room.roofType = stats.hasConicalRoof ? DesignType.ROOF : DesignType.NONE;
+			room.roofType = DesignType.ROOF;
 		}
 
 		lastAddedStack = new CylinderStack(room);
@@ -121,10 +115,10 @@ public class CylinderRoomTool extends RoomTool {
 		BlockPos anchor = ArchitectManager.getModel()
 			.getAnchor();
 		BlockPos cursorPos = (anchor != null) ? selectedPosition.offset(anchor) : selectedPosition;
-		BlockPos previouslySelectedPos = (firstPosition != null) ? firstPosition.offset(anchor) : cursorPos;
+		BlockPos previouslySelectedPos = (firstPosition != null && anchor != null) ? firstPosition.offset(anchor) : cursorPos;
 
 		if (firstPosition == null) {
-			MightyClient.outliner.chaseAABB(outlineKey, new AABB(cursorPos))
+			FabricArchitectClient.outliner.chaseAABB(outlineKey, new AABB(cursorPos))
 				.withFaceTexture(AllSpecialTextures.CHECKERED);
 			return;
 		}
@@ -142,7 +136,7 @@ public class CylinderRoomTool extends RoomTool {
 		selection.x -= distance;
 		selection.z -= distance;
 
-		MightyClient.outliner.chaseAABB(outlineKey, selection.toAABB())
+		FabricArchitectClient.outliner.chaseAABB(outlineKey, selection.toAABB())
 			.withFaceTexture(AllSpecialTextures.CHECKERED)
 			.colored(0);
 		drawTextAroundBounds(selection);

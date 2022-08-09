@@ -1,16 +1,15 @@
 package com.simibubi.mightyarchitect.control.phase;
 
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.mightyarchitect.MightyClient;
-
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.TextComponent;
+
+import java.util.List;
 
 public class PhasePaused extends PhaseBase {
 
@@ -22,7 +21,7 @@ public class PhasePaused extends PhaseBase {
 		player.displayClientMessage(new TextComponent(
 			"The Mighty Architect was " + ChatFormatting.BOLD + "Paused" + ChatFormatting.RESET + "."), false);
 		player.displayClientMessage(new TextComponent("You can continue composing with [" + ChatFormatting.AQUA
-			+ MightyClient.COMPOSE.getTranslatedKeyMessage()
+			+ FabricArchitectClient.COMPOSE.getTranslatedKeyMessage()
 				.getString()
 				.toUpperCase()
 			+ ChatFormatting.WHITE + "]"), false);

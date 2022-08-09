@@ -1,18 +1,13 @@
 package com.simibubi.mightyarchitect.control.design;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.google.common.collect.ImmutableList;
 import com.simibubi.mightyarchitect.control.design.partials.Design;
 import com.simibubi.mightyarchitect.control.palette.PaletteDefinition;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+
+import java.util.*;
 
 public class DesignTheme {
 
@@ -21,7 +16,7 @@ public class DesignTheme {
 	private String filePath;
 	private String displayName;
 	private String designer;
-	private DesignPicker designPicker;
+	private final DesignPicker designPicker;
 	private boolean imported;
 	private PaletteDefinition defaultPalette;
 	private PaletteDefinition defaultSecondaryPalette;
@@ -182,8 +177,8 @@ public class DesignTheme {
 		if (compound.contains("Maximum Room Height"))
 			theme.maxFloorHeight = compound.getInt("Maximum Room Height");
 
-		compound.getList("Layers", 8).forEach(s -> theme.layers.add(DesignLayer.valueOf(((StringTag) s).getAsString())));
-		compound.getList("Types", 8).forEach(s -> theme.types.add(DesignType.valueOf(((StringTag) s).getAsString())));
+		compound.getList("Layers", 8).forEach(s -> theme.layers.add(DesignLayer.valueOf(s.getAsString())));
+		compound.getList("Types", 8).forEach(s -> theme.types.add(DesignType.valueOf(s.getAsString())));
 
 		theme.updateRoomLayers();
 		return theme;

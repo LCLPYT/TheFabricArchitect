@@ -1,17 +1,16 @@
 package com.simibubi.mightyarchitect.control.compose.planner;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.control.design.DesignLayer;
-
+import com.simibubi.mightyarchitect.mixin.client.KeyMappingAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class LayerStyleTool extends WallDecorationToolBase {
 
@@ -45,7 +44,9 @@ public class LayerStyleTool extends WallDecorationToolBase {
 		if (selectedRoom == null)
 			return;
 
-		Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots).filter(keyMapping -> keyMapping.getKey().getValue() == key).findFirst();
+		Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots)
+				.filter(keyMapping -> ((KeyMappingAccessor) keyMapping).getKey().getValue() == key)
+				.findFirst();
 		if (mapping.isEmpty())
 			return;
 

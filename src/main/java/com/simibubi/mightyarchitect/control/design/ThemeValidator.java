@@ -1,17 +1,16 @@
 package com.simibubi.mightyarchitect.control.design;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-
 import com.simibubi.mightyarchitect.foundation.utility.DesignHelper;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
 public class ThemeValidator {
 
@@ -19,6 +18,8 @@ public class ThemeValidator {
 
 	public static void check(DesignTheme theme) {
 		LocalPlayer player = Minecraft.getInstance().player;
+		if (player == null) return;
+
 		for (int i = 0; i < 3; i++)
 			player.displayClientMessage(new TextComponent(" "), false);
 		player.displayClientMessage(new TextComponent(ChatFormatting.AQUA + "--> Validation on "
@@ -58,7 +59,6 @@ public class ThemeValidator {
 
 				switch (type) {
 				case CORNER:
-					missingHeights.clear();
 					for (int height = 1; height <= theme.getMaxFloorHeight(); height++) {
 						DesignQuery cornerQuery = new DesignQuery(theme, layer, type).withHeight(height);
 						if (!exists(cornerQuery))
@@ -172,9 +172,9 @@ public class ThemeValidator {
 	private static String glue(List<Integer> heights) {
 		if (heights.isEmpty())
 			return null;
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for (int h : heights)
-			s += ", " + h;
+			s.append(", ").append(h);
 		return s.substring(2);
 	}
 

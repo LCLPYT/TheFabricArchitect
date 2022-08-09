@@ -1,12 +1,7 @@
 package com.simibubi.mightyarchitect.control.compose.planner;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.simibubi.mightyarchitect.AllSpecialTextures;
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.compose.CylinderStack;
 import com.simibubi.mightyarchitect.control.compose.GroundPlan;
 import com.simibubi.mightyarchitect.control.compose.Room;
@@ -14,7 +9,6 @@ import com.simibubi.mightyarchitect.control.compose.Stack;
 import com.simibubi.mightyarchitect.control.design.DesignType;
 import com.simibubi.mightyarchitect.foundation.utility.RaycastHelper;
 import com.simibubi.mightyarchitect.foundation.utility.outliner.Outline.OutlineParams;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -24,6 +18,11 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public abstract class GroundPlanningToolBase extends ComposerToolBase {
 
@@ -42,6 +41,8 @@ public abstract class GroundPlanningToolBase extends ComposerToolBase {
 
 		LocalPlayer player = Minecraft.getInstance().player;
 		transparentStacks.clear();
+
+		if (player == null) return;
 
 		BlockHitResult trace = RaycastHelper.rayTraceRange(player.level, player, 75);
 		if (trace != null && trace.getType() == Type.BLOCK) {
@@ -116,7 +117,7 @@ public abstract class GroundPlanningToolBase extends ComposerToolBase {
 			boolean stackHighlighted = isStackHighlighted(stack);
 			stack.forEach(room -> {
 				boolean roomHighlighted = isRoomHighlighted(room);
-				MightyClient.outliner.chaseAABB(room, room.toAABB()
+				FabricArchitectClient.outliner.chaseAABB(room, room.toAABB()
 					.move(anchor))
 					.withFaceTexture(roomHighlighted ? AllSpecialTextures.SuperSelectedRoom
 						: stackTransparent ? AllSpecialTextures.SelectedRoom
@@ -250,7 +251,7 @@ public abstract class GroundPlanningToolBase extends ComposerToolBase {
 		prevVertex = new Vec3(x, y, z);
 		if (previousVec == null)
 			return this;
-		lines.add(MightyClient.outliner.chaseLine(key + vertexCounter, previousVec, prevVertex));
+		lines.add(FabricArchitectClient.outliner.chaseLine(key + vertexCounter, previousVec, prevVertex));
 		vertexCounter++;
 		return this;
 	}

@@ -1,7 +1,6 @@
 package com.simibubi.mightyarchitect;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.resources.ResourceLocation;
 
 public enum AllSpecialTextures {
@@ -29,11 +28,10 @@ public enum AllSpecialTextures {
     
     Trim("trim.png");
 
-    private ResourceLocation location;
+    private final ResourceLocation location;
 
-    private AllSpecialTextures(String filename) {
-        location = new ResourceLocation(TheMightyArchitect.ID,
-                "textures/block/marker/" + filename);
+    AllSpecialTextures(String filename) {
+        location = TheFabricArchitect.rl("textures/block/marker/%s", filename);
     }
 
     public void bind() {

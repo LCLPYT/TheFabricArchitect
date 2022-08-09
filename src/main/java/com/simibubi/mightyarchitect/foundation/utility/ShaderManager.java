@@ -4,19 +4,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
-@EventBusSubscriber(value = Dist.CLIENT)
 public class ShaderManager {
 
 	private static Shaders activeShader = Shaders.None;
 
-	@SubscribeEvent(priority = EventPriority.HIGH)
-	public static void onClientTick(ClientTickEvent event) {
+	public static void onClientTick(Minecraft mc) {
 		if (Minecraft.getInstance().level == null && activeShader != Shaders.None)
 			stopUsingShaders();
 		

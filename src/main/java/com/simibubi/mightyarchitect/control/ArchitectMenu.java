@@ -1,12 +1,5 @@
 package com.simibubi.mightyarchitect.control;
 
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-
 import com.simibubi.mightyarchitect.control.design.DesignExporter;
 import com.simibubi.mightyarchitect.control.design.DesignTheme;
 import com.simibubi.mightyarchitect.control.design.ThemeStorage;
@@ -15,9 +8,15 @@ import com.simibubi.mightyarchitect.control.phase.ArchitectPhases;
 import com.simibubi.mightyarchitect.gui.ScreenHelper;
 import com.simibubi.mightyarchitect.gui.TextInputPromptScreen;
 import com.simibubi.mightyarchitect.gui.ThemeSettingsScreen;
-
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class ArchitectMenu {
 
@@ -26,64 +25,64 @@ public class ArchitectMenu {
 
 		case Composing:
 			switch (c) {
-
-			case 'f':
-				ArchitectManager.design();
-				return true;
-
-			case 'u':
-				ArchitectManager.unload();
-				return true;
+				case 'f' -> {
+					ArchitectManager.design();
+					return true;
+				}
+				case 'u' -> {
+					ArchitectManager.unload();
+					return true;
+				}
 			}
 			break;
 
 		case CreatingPalette:
 			switch (c) {
-
-			case 'f':
-				TextInputPromptScreen gui =
-					new TextInputPromptScreen(result -> ArchitectManager.finishPalette(result), result -> {
-					});
-				gui.setButtonTextConfirm("Save and Apply");
-				gui.setButtonTextAbort("Cancel");
-				gui.setTitle("Enter a name for your Palette:");
-				ScreenHelper.open(gui);
-				return false;
-
-			case 'd':
-				ArchitectManager.pickPalette();
-				return true;
-
-			case 'u':
-				ArchitectManager.unload();
-				return true;
+				case 'f' -> {
+					TextInputPromptScreen gui =
+							new TextInputPromptScreen(ArchitectManager::finishPalette, result -> {
+							});
+					gui.setButtonTextConfirm("Save and Apply");
+					gui.setButtonTextAbort("Cancel");
+					gui.setTitle("Enter a name for your Palette:");
+					ScreenHelper.open(gui);
+					return false;
+				}
+				case 'd' -> {
+					ArchitectManager.pickPalette();
+					return true;
+				}
+				case 'u' -> {
+					ArchitectManager.unload();
+					return true;
+				}
 			}
 			break;
 
 		case Empty:
 			switch (c) {
-
-			case 'c':
-				ArchitectManager.unload();
-				return true;
-
-			case 'm':
-				ArchitectManager.manageThemes();
-				return false;
-
-			case 'r':
-				ThemeStorage.reloadExternal();
-				ArchitectManager.status("Reloaded Themes");
-				ArchitectManager.enterPhase(ArchitectPhases.Empty);
-				return false;
-
-			default:
-				int index = c - '1';
-				ThemeStorage.reloadExternal();
-				List<DesignTheme> themes = ThemeStorage.getAllThemes();
-				if (index < themes.size() && index >= 0) {
-					ArchitectManager.compose(themes.get(index));
+				case 'c' -> {
+					ArchitectManager.unload();
 					return true;
+				}
+				case 'm' -> {
+					ArchitectManager.manageThemes();
+					return false;
+				}
+				case 'r' -> {
+					ThemeStorage.reloadExternal();
+					ArchitectManager.status("Reloaded Themes");
+					ArchitectManager.enterPhase(ArchitectPhases.Empty);
+					return false;
+				}
+				default -> {
+					int index = c - '1';
+					ThemeStorage.reloadExternal();
+					List<DesignTheme> themes = ThemeStorage.getAllThemes();
+					if (index < themes.size() && index >= 0) {
+						ArchitectManager.compose(themes.get(index));
+						return true;
+					}
 				}
 			}
 			break;
@@ -91,58 +90,61 @@ public class ArchitectMenu {
 		case Previewing:
 			boolean test = ArchitectManager.testRun;
 			switch (c) {
-
-			case 'c':
-				ArchitectManager.pickPalette();
-				return true;
-
-			case 'e':
-				ArchitectManager.compose();
-				return true;
-
-			case 's':
-				if (test)
-					return false;
-				TextInputPromptScreen gui =
-					new TextInputPromptScreen(result -> ArchitectManager.writeToFile(result), result -> {
-					});
-				gui.setButtonTextConfirm("Save Schematic");
-				gui.setButtonTextAbort("Cancel");
-				gui.setTitle("Enter a name for your Build:");
-
-				ScreenHelper.open(gui);
-				return true;
-
-			case 'p':
-				if (test)
-					return false;
-				if (!Minecraft.getInstance().player.isCreative())
-					return false;
-				ArchitectManager.print();
-				return true;
-
-			case 'u':
-				ArchitectManager.unload();
-				return true;
+				case 'c' -> {
+					ArchitectManager.pickPalette();
+					return true;
+				}
+				case 'e' -> {
+					ArchitectManager.compose();
+					return true;
+				}
+				case 's' -> {
+					if (test)
+						return false;
+					TextInputPromptScreen gui =
+							new TextInputPromptScreen(ArchitectManager::writeToFile, result -> {
+							});
+					gui.setButtonTextConfirm("Save Schematic");
+					gui.setButtonTextAbort("Cancel");
+					gui.setTitle("Enter a name for your Build:");
+					ScreenHelper.open(gui);
+					return true;
+				}
+				case 'p' -> {
+					if (test)
+						return false;
+					if (Minecraft.getInstance().player == null || !Minecraft.getInstance().player.isCreative())
+						return false;
+					ArchitectManager.print();
+					return true;
+				}
+				case 'u' -> {
+					ArchitectManager.unload();
+					return true;
+				}
 			}
 			break;
 
 		case ManagingThemes:
 			switch (c) {
-			case 'n':
-				ArchitectManager.createTheme();
-				return true;
-			case 't':
-				ArchitectManager.enterPhase(ArchitectPhases.ListForEdit);
-				return false;
-			case 'o':
-				Util.getPlatform()
-					.openFile(Paths.get("themes/")
-						.toFile());
-				return false;
-			case 'c':
-				ArchitectManager.unload();
-				return true;
+				case 'n' -> {
+					ArchitectManager.createTheme();
+					return true;
+				}
+				case 't' -> {
+					ArchitectManager.enterPhase(ArchitectPhases.ListForEdit);
+					return false;
+				}
+				case 'o' -> {
+					Util.getPlatform()
+							.openFile(Paths.get("themes/")
+									.toFile());
+					return false;
+				}
+				case 'c' -> {
+					ArchitectManager.unload();
+					return true;
+				}
 			}
 			break;
 
@@ -161,13 +163,10 @@ public class ArchitectMenu {
 			break;
 
 		case ListForEdit:
-			switch (c) {
-
-			case 'c':
+			if (c == 'c') {
 				ArchitectManager.enterPhase(ArchitectPhases.ManagingThemes);
 				return false;
-
-			default:
+			} else {
 				int index = c - '1';
 				List<DesignTheme> themes = ThemeStorage.getCreated();
 				if (index < themes.size() && index >= 0) {
@@ -275,7 +274,7 @@ public class ArchitectMenu {
 
 			if (!ArchitectManager.testRun) {
 				keybinds.put("S", "Save as Schematic");
-				if (Minecraft.getInstance().player.isCreative())
+				if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isCreative())
 					keybinds.put("P", "Print blocks into world");
 				keybinds.lineBreak();
 				keybinds.put("U", "Unload");
@@ -332,8 +331,8 @@ public class ArchitectMenu {
 	}
 
 	public static class KeyBindList {
-		private List<String> keys;
-		private Map<String, String> descriptions;
+		private final List<String> keys;
+		private final Map<String, String> descriptions;
 
 		public KeyBindList() {
 			keys = new ArrayList<>();

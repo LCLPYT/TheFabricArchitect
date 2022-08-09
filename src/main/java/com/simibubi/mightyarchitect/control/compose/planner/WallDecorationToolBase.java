@@ -1,9 +1,8 @@
 package com.simibubi.mightyarchitect.control.compose.planner;
 
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.compose.Cuboid;
 import com.simibubi.mightyarchitect.control.compose.Room;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
@@ -51,7 +50,7 @@ public abstract class WallDecorationToolBase extends ComposerToolBase {
 			}
 
 			//highlight room
-			MightyClient.outliner.chaseAABB(toolOutlineKey, new AABB(min.getX() - 1 / 2d,
+			FabricArchitectClient.outliner.chaseAABB(toolOutlineKey, new AABB(min.getX() - 1 / 2d,
 				min.getY() + 1 / 4d, min.getZ() - 1 / 2d, max.getX() + 1 / 2d, max.getY(), max.getZ() + 1 / 2d))
 					.lineWidth(1/8f)
 					.colored(0xffffff)
@@ -90,7 +89,7 @@ public abstract class WallDecorationToolBase extends ComposerToolBase {
 			.offset(model.getAnchor());
 
 		//highlight stack
-		MightyClient.outliner.chaseAABB(toolOutlineKey, new AABB(min.getX() - 1 / 2d, min.getY() + 1 / 4d,
+		FabricArchitectClient.outliner.chaseAABB(toolOutlineKey, new AABB(min.getX() - 1 / 2d, min.getY() + 1 / 4d,
 			min.getZ() - 1 / 2d, max.getX() + 1 / 2d, max.getY(), max.getZ() + 1 / 2d))
 				.lineWidth(1/8f)
 				.colored(0xffffff)

@@ -1,17 +1,16 @@
 package com.simibubi.mightyarchitect.control.compose.planner;
 
-import java.util.Arrays;
-import java.util.Optional;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.lwjgl.glfw.GLFW;
-
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.foundation.utility.Keyboard;
-
+import com.simibubi.mightyarchitect.mixin.client.KeyMappingAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import org.apache.commons.lang3.ArrayUtils;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 public class PalettePainterTool extends WallDecorationToolBase {
 
@@ -57,7 +56,9 @@ public class PalettePainterTool extends WallDecorationToolBase {
 
 	@Override
 	public void handleKeyInput(int key) {
-		Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots).filter(keyMapping -> keyMapping.getKey().getValue() == key).findFirst();
+		Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots)
+				.filter(keyMapping -> ((KeyMappingAccessor) keyMapping).getKey().getValue() == key)
+				.findFirst();
 		if (mapping.isEmpty())
 			return;
 

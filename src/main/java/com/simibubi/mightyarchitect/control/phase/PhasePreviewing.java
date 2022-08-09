@@ -1,22 +1,20 @@
 package com.simibubi.mightyarchitect.control.phase;
 
+import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
+import com.simibubi.mightyarchitect.control.compose.planner.Tools;
+import com.simibubi.mightyarchitect.gui.ToolSelectionScreen;
+import com.simibubi.mightyarchitect.mixin.client.KeyMappingAccessor;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.mightyarchitect.MightyClient;
-import com.simibubi.mightyarchitect.control.compose.planner.Tools;
-import com.simibubi.mightyarchitect.gui.ToolSelectionScreen;
-
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 
 public class PhasePreviewing extends PhaseBase implements IRenderGameOverlay {
 
@@ -25,9 +23,7 @@ public class PhasePreviewing extends PhaseBase implements IRenderGameOverlay {
 
 	@Override
 	public void whenEntered() {
-		final Consumer<Tools> callback = tool -> {
-			equipTool(tool);
-		};
+		final Consumer<Tools> callback = this::equipTool;
 
 		activeTool = Tools.RerollAll;
 		activeTool.getTool()
@@ -35,7 +31,7 @@ public class PhasePreviewing extends PhaseBase implements IRenderGameOverlay {
 		List<Tools> tools = Tools.getWallDecorationTools();
 		toolSelection = new ToolSelectionScreen(tools, callback);
 
-		MightyClient.renderer.display(getModel());
+		FabricArchitectClient.renderer.display(getModel());
 	}
 
 	private void equipTool(Tools tool) {
@@ -59,7 +55,7 @@ public class PhasePreviewing extends PhaseBase implements IRenderGameOverlay {
 
 	@Override
 	public void onKey(int key, boolean released) {
-		if (key == MightyClient.TOOL_MENU.getKey().getValue()) {
+		if (key == ((KeyMappingAccessor) FabricArchitectClient.TOOL_MENU).getKey().getValue()) {
 			if (released && toolSelection.focused) {
 				toolSelection.focused = false;
 				toolSelection.onClose();
@@ -75,7 +71,9 @@ public class PhasePreviewing extends PhaseBase implements IRenderGameOverlay {
 			return;
 
 		if (toolSelection.focused) {
-			Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots).filter(keyMapping -> keyMapping.getKey().getValue() == key).findFirst();
+			Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots)
+					.filter(keyMapping -> ((KeyMappingAccessor) keyMapping).getKey().getValue() == key)
+					.findFirst();
 			if (mapping.isEmpty())
 				return;
 
@@ -114,13 +112,12 @@ public class PhasePreviewing extends PhaseBase implements IRenderGameOverlay {
 
 	@Override
 	public void whenExited() {
-		MightyClient.renderer.setActive(false);
+		FabricArchitectClient.renderer.setActive(false);
 	}
 
 	@Override
-	public void renderGameOverlay(RenderGameOverlayEvent.Pre event) {
-		PoseStack ms = event.getMatrixStack();
-		toolSelection.renderPassive(ms, event.getPartialTicks());
+	public void renderGameOverlay(PoseStack ms, float partialTicks) {
+		toolSelection.renderPassive(ms, partialTicks);
 		activeTool.getTool()
 			.renderOverlay(ms);
 	}

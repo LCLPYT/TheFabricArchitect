@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "mightyarchitect",
+  "version": "${version}",
+
+  "name": "The Fabric Architect",
+  "description": "Design elaborate buildings within a minute! [G] is the default keybind for getting started. Check out the wiki for more info.",
+  "authors": [
+    "simibubi",
+    "LCLP"
+  ],
+  "contact": {
+    "homepage": "https://github.com/LCLPYT/TheFabricArchitect",
+    "sources": "https://github.com/LCLPYT/TheFabricArchitect"
+  },
+
+  "license": "MIT",
+  "icon": "assets/mightyarchitect/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.simibubi.mightyarchitect.TheFabricArchitect"
+    ],
+    "client": [
+      "com.simibubi.mightyarchitect.FabricArchitectClient"
+    ]
+  },
+  "mixins": [
+    "mightyarchitect.mixin.json"
+  ],
+  "accessWidener" : "mightyarchitect.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.13.3",
+    "fabric": "*",
+    "fabric-key-binding-api-v1": "*",
+    "minecraft": "1.18.2",
+    "java": ">=17"
+  },
+  "suggests": {}
+}

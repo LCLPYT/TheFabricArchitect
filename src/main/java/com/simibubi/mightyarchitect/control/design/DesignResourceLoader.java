@@ -1,24 +1,19 @@
 package com.simibubi.mightyarchitect.control.design;
 
+import com.simibubi.mightyarchitect.TheFabricArchitect;
+import com.simibubi.mightyarchitect.control.design.partials.Design;
+import com.simibubi.mightyarchitect.foundation.utility.FilesHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtIo;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import com.simibubi.mightyarchitect.TheMightyArchitect;
-import com.simibubi.mightyarchitect.control.design.partials.Design;
-import com.simibubi.mightyarchitect.foundation.utility.FilesHelper;
-
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtIo;
 
 public class DesignResourceLoader {
 
@@ -91,7 +86,7 @@ public class DesignResourceLoader {
 		
 		final CompoundTag themeFile = importedThemeFile;
 
-		if (themeFile.contains("Designs")) {
+		if (themeFile != null && themeFile.contains("Designs")) {
 			theme.getLayers().forEach(layer -> {
 
 				final HashMap<DesignType, Set<CompoundTag>> typeMap = new HashMap<>();
@@ -148,7 +143,7 @@ public class DesignResourceLoader {
 		int index = 0;
 		while (index < 2048) {
 			final String path = folderPath + "/design" + ((index == 0) ? "" : "_" + index) + ".json";
-			if (TheMightyArchitect.class.getClassLoader().getResource(path) == null)
+			if (TheFabricArchitect.class.getClassLoader().getResource(path) == null)
 				break;
 			final CompoundTag designTag = FilesHelper.loadJsonResourceAsNBT(path);
 			designs.add(type.getDesign().fromNBT(designTag));

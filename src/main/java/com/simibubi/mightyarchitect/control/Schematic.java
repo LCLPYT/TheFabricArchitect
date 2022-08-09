@@ -1,11 +1,5 @@
 package com.simibubi.mightyarchitect.control;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Vector;
-
 import com.simibubi.mightyarchitect.control.compose.Cuboid;
 import com.simibubi.mightyarchitect.control.compose.GroundPlan;
 import com.simibubi.mightyarchitect.control.compose.Room;
@@ -14,11 +8,12 @@ import com.simibubi.mightyarchitect.control.design.Sketch;
 import com.simibubi.mightyarchitect.control.palette.PaletteBlockInfo;
 import com.simibubi.mightyarchitect.control.palette.PaletteDefinition;
 import com.simibubi.mightyarchitect.networking.InstantPrintPacket;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+
+import java.util.*;
 
 public class Schematic {
 
@@ -200,8 +195,8 @@ public class Schematic {
 
 	public StructureTemplate writeToTemplate() {
 		final StructureTemplate template = new StructureTemplate();
-		template.setAuthor(Minecraft.getInstance().player.getName()
-			.getString());
+		template.setAuthor(Minecraft.getInstance().player != null ? Minecraft.getInstance().player.getName()
+			.getString() : "Unknown");
 
 		materializedSketch.localMode(true);
 		template.fillFromWorld(materializedSketch, materializedSketch.getBounds()

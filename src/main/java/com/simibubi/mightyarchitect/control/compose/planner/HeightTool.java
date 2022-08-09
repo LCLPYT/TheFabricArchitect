@@ -1,11 +1,9 @@
 package com.simibubi.mightyarchitect.control.compose.planner;
 
-import org.lwjgl.glfw.GLFW;
-
 import com.simibubi.mightyarchitect.control.compose.Room;
 import com.simibubi.mightyarchitect.foundation.utility.Keyboard;
-
 import net.minecraft.ChatFormatting;
+import org.lwjgl.glfw.GLFW;
 
 public class HeightTool extends AbstractRoomFaceSelectionTool {
 
@@ -35,15 +33,11 @@ public class HeightTool extends AbstractRoomFaceSelectionTool {
 				}
 
 				selectedRoom.height += scroll;
-				selectedStack.forEachAbove(selectedRoom, room -> {
-					room.y += scroll;
-				});
+				selectedStack.forEachAbove(selectedRoom, room -> room.y += scroll);
 				status("Height: " + ChatFormatting.AQUA + selectedRoom.height + ChatFormatting.WHITE + "m");
 			} else {
 				// Move
-				selectedStack.forRoomAndEachAbove(selectedStack.lowest(), room -> {
-					room.move(0, scroll, 0);
-				});
+				selectedStack.forRoomAndEachAbove(selectedStack.lowest(), room -> room.move(0, scroll, 0));
 				status("Position: " + ChatFormatting.AQUA + selectedStack.lowest().y);
 			}
 			return true;

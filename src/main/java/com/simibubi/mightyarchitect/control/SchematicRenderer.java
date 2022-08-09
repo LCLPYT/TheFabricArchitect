@@ -1,17 +1,11 @@
 package com.simibubi.mightyarchitect.control;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.simibubi.mightyarchitect.foundation.MatrixStacker;
 import com.simibubi.mightyarchitect.foundation.SuperByteBuffer;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -19,9 +13,13 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.model.data.EmptyModelData;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class SchematicRenderer {
 
@@ -90,6 +88,7 @@ public class SchematicRenderer {
 		Map<RenderType, BufferBuilder> buffers = new HashMap<>();
 		PoseStack ms = new PoseStack();
 
+		// TODO check compatibility with sodium and iris
 		BlockPos.betweenClosedStream(schematic.getLocalBounds()
 			.toMBB())
 			.forEach(localPos -> {
@@ -100,22 +99,23 @@ public class SchematicRenderer {
 				BlockState state = blockAccess.getBlockState(pos);
 
 				for (RenderType blockRenderLayer : RenderType.chunkBufferLayers()) {
-					if (!ItemBlockRenderTypes.canRenderInLayer(state, blockRenderLayer))
+					if (!canRenderInLayer(state, blockRenderLayer))
 						continue;
-					ForgeHooksClient.setRenderType(blockRenderLayer);
+
 					if (!buffers.containsKey(blockRenderLayer))
 						buffers.put(blockRenderLayer, new BufferBuilder(DefaultVertexFormat.BLOCK.getIntegerSize()));
 
 					BufferBuilder bufferBuilder = buffers.get(blockRenderLayer);
 					if (startedBufferBuilders.add(blockRenderLayer))
 						bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
-					if (blockRendererDispatcher.renderBatched(state, pos, blockAccess, ms, bufferBuilder, true,
-						minecraft.level.random, EmptyModelData.INSTANCE)) {
+
+					final Level l = minecraft.level;
+					if (l != null && blockRendererDispatcher.renderBatched(state, pos, blockAccess, ms, bufferBuilder,
+							true, minecraft.level.random)) {
 						usedBlockRenderLayers.add(blockRenderLayer);
 					}
 				}
 
-				ForgeHooksClient.setRenderType(null);
 				ms.popPose();
 			});
 
@@ -134,4 +134,7 @@ public class SchematicRenderer {
 			.size();
 	}
 
+	public static boolean canRenderInLayer(BlockState state, RenderType layer) {
+		return layer.equals(ItemBlockRenderTypes.getChunkRenderType(state));
+	}
 }

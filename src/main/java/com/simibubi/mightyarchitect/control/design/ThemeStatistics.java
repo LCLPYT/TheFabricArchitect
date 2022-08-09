@@ -1,12 +1,12 @@
 package com.simibubi.mightyarchitect.control.design;
 
-import java.util.Random;
-
 import com.simibubi.mightyarchitect.control.compose.Room;
 import com.simibubi.mightyarchitect.foundation.utility.DesignHelper;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.TextComponent;
+
+import java.util.Random;
 
 public class ThemeStatistics {
 
@@ -40,14 +40,14 @@ public class ThemeStatistics {
 		ThemeStatistics stats = new ThemeStatistics();
 
 		if (!theme.getTypes()
-			.contains(DesignType.TOWER_FLAT_ROOF))
+				.contains(DesignType.TOWER_FLAT_ROOF))
 			stats.hasFlatTowerRoof = false;
 		if (!theme.getTypes()
-			.contains(DesignType.TOWER_ROOF))
+				.contains(DesignType.TOWER_ROOF))
 			stats.hasConicalRoof = false;
 
 		if (theme.getTypes()
-			.contains(DesignType.TOWER)) {
+				.contains(DesignType.TOWER)) {
 			// Determine min and max radius
 			stats.MinTowerRadius = stats.MaxRoomLength;
 			stats.MaxTowerRadius = 0;
@@ -90,7 +90,7 @@ public class ThemeStatistics {
 		}
 
 		if (theme.getTypes()
-			.contains(DesignType.ROOF)) {
+				.contains(DesignType.ROOF)) {
 
 			// Determine min and max gable span
 			DesignQuery roofQuery = new DesignQuery(theme, DesignLayer.Roofing, DesignType.ROOF);
@@ -118,7 +118,7 @@ public class ThemeStatistics {
 		}
 
 		if (theme.getTypes()
-			.contains(DesignType.FLAT_ROOF)) {
+				.contains(DesignType.FLAT_ROOF)) {
 			DesignQuery roofQuery = new DesignQuery(theme, DesignLayer.Roofing, DesignType.FLAT_ROOF);
 
 			if (!designExists(roofQuery)) {
@@ -178,7 +178,9 @@ public class ThemeStatistics {
 	}
 
 	private void chat(String message) {
-		Minecraft.getInstance().player.displayClientMessage(new TextComponent(message), false);
+		final LocalPlayer player = Minecraft.getInstance().player;
+		if (player != null)
+			player.displayClientMessage(new TextComponent(message), false);
 	}
 
 	public DesignType fallbackRoof(Room room, boolean tower) {
@@ -189,7 +191,7 @@ public class ThemeStatistics {
 
 		if (!tower && desired == DesignType.ROOF) {
 			if (hasGables && Math.min(room.width, room.length) <= MaxGableRoof
-				&& Math.min(room.width, room.length) >= MinGableRoof)
+					&& Math.min(room.width, room.length) >= MinGableRoof)
 				return desired;
 			if (hasFlatRoof && Math.min(room.width, room.length) >= MinFlatRoof)
 				return DesignType.FLAT_ROOF;

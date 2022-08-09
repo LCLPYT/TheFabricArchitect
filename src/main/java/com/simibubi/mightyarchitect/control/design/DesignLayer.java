@@ -1,8 +1,8 @@
 package com.simibubi.mightyarchitect.control.design;
 
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 public enum DesignLayer {
 	
@@ -14,10 +14,10 @@ public enum DesignLayer {
 	None("none", "None"),
 	Roofing("roofing", "Roofing");
 	
-	private String filePath;
-	private String displayName;
+	private final String filePath;
+	private final String displayName;
 	
-	private DesignLayer(String filePath, String displayName) {
+	DesignLayer(String filePath, String displayName) {
 		this.filePath = filePath;
 		this.displayName = displayName;
 	}

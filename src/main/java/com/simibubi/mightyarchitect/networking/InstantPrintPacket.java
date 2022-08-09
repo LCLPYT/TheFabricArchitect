@@ -1,25 +1,25 @@
 package com.simibubi.mightyarchitect.networking;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.NetworkEvent;
 
-public class InstantPrintPacket {
+import java.util.*;
 
-	private BunchOfBlocks blocks;
+import static com.simibubi.mightyarchitect.TheFabricArchitect.rl;
 
-	public InstantPrintPacket() {
-	}
+public class InstantPrintPacket implements IPacket {
+
+	public static final ResourceLocation ID = rl("instant_print");
+
+	private final BunchOfBlocks blocks;
 
 	public InstantPrintPacket(BunchOfBlocks blocks) {
 		this.blocks = blocks;
@@ -30,12 +30,20 @@ public class InstantPrintPacket {
 		int size = buf.readInt();
 		for (int i = 0; i < size; i++) {
 			CompoundTag blockTag = buf.readNbt();
+			if (blockTag == null) continue;
+
 			BlockPos pos = buf.readBlockPos();
 			blocks.put(pos, NbtUtils.readBlockState(blockTag));
 		}
 		this.blocks = new BunchOfBlocks(blocks);
 	}
 
+	@Override
+	public ResourceLocation getId() {
+		return ID;
+	}
+
+	@Override
 	public void toBytes(FriendlyByteBuf buf) {
 		buf.writeInt(blocks.size);
 		blocks.blocks.forEach((pos, state) -> {
@@ -44,11 +52,10 @@ public class InstantPrintPacket {
 		});
 	}
 	
-	public void handle(Supplier<NetworkEvent.Context> context) {
-		context.get().enqueueWork(() -> {
-			blocks.blocks.forEach((pos, state) -> {
-				context.get().getSender().getCommandSenderWorld().setBlock(pos, state, 3);
-			});
+	public void handle(MinecraftServer server, ServerPlayer player) {
+		server.execute(() -> {
+			final var commandSenderWorld = player.getCommandSenderWorld();
+			blocks.blocks.forEach((pos, state) -> commandSenderWorld.setBlock(pos, state, 3));
 		});
     }
 	
@@ -69,7 +76,11 @@ public class InstantPrintPacket {
 		
 		return packets;
 	}
-	
+
+	public static void receive(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
+		new InstantPrintPacket(buf).handle(server, player);
+	}
+
 	static class BunchOfBlocks {
 		static final int MAX_SIZE = 32;
 		Map<BlockPos, BlockState> blocks;

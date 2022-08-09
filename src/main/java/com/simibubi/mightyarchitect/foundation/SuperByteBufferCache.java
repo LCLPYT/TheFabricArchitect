@@ -1,27 +1,27 @@
 package com.simibubi.mightyarchitect.foundation;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.EmptyModelData;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 public class SuperByteBufferCache {
 
@@ -77,13 +77,15 @@ public class SuperByteBufferCache {
 	}
 
 	private SuperByteBuffer standardModelRender(BakedModel model, BlockState referenceState, PoseStack ms) {
+		final ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
+
 		BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
 		ModelBlockRenderer blockRenderer = dispatcher.getModelRenderer();
 		BufferBuilder builder = new BufferBuilder(DefaultVertexFormat.BLOCK.getIntegerSize());
 		Random random = new Random();
 		builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
-		blockRenderer.tesselateBlock(Minecraft.getInstance().level, model, referenceState, BlockPos.ZERO.above(255), ms,
-				builder, true, random, 42, OverlayTexture.NO_OVERLAY, EmptyModelData.INSTANCE);
+		blockRenderer.tesselateBlock(level, model, referenceState, BlockPos.ZERO.above(255), ms,
+				builder, true, random, 42, OverlayTexture.NO_OVERLAY);
 		builder.end();
 
 		return new SuperByteBuffer(builder);

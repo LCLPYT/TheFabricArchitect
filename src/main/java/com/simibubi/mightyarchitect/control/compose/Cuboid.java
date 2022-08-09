@@ -19,9 +19,9 @@ public class Cuboid {
 	}
 
 	public Cuboid(BlockPos origin, int width, int height, int length) {
-		this.x = origin.getX() + ((width < 0) ? width : 0);
-		this.y = origin.getY() + ((height < 0) ? height : 0);
-		this.z = origin.getZ() + ((length < 0) ? length : 0);
+		this.x = origin.getX() + Math.min(width, 0);
+		this.y = origin.getY() + Math.min(height, 0);
+		this.z = origin.getZ() + Math.min(length, 0);
 		this.width = Math.abs(width);
 		this.height = Math.abs(height);
 		this.length = Math.abs(length);
@@ -35,6 +35,7 @@ public class Cuboid {
 		return new BlockPos(width, height, length);
 	}
 
+	@Override
 	public Cuboid clone() {
 		return new Cuboid(new BlockPos(x, y, z), width, height, length);
 	}
@@ -73,25 +74,14 @@ public class Cuboid {
 			centerOnOthersZ(other, shift);
 
 		switch (side) {
-		case WEST:
-			this.x = other.x + other.width;
-			break;
-		case EAST:
-			this.x = other.x - this.width;
-			break;
-		case SOUTH:
-			this.z = other.z + other.length;
-			break;
-		case NORTH:
-			this.z = other.z - this.length;
-			break;
-		case UP:
-			this.y = other.y + other.height;
-			break;
-		case DOWN:
-			this.y = other.y - this.height;
-			break;
-		default:
+			case WEST -> this.x = other.x + other.width;
+			case EAST -> this.x = other.x - this.width;
+			case SOUTH -> this.z = other.z + other.length;
+			case NORTH -> this.z = other.z - this.length;
+			case UP -> this.y = other.y + other.height;
+			case DOWN -> this.y = other.y - this.height;
+			default -> {
+			}
 		}
 	}
 

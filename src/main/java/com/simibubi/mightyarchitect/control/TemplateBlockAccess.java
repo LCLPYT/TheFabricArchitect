@@ -1,16 +1,7 @@
 package com.simibubi.mightyarchitect.control;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.function.Predicate;
-
 import com.simibubi.mightyarchitect.control.compose.Cuboid;
 import com.simibubi.mightyarchitect.foundation.WrappedWorld;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -32,16 +23,21 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
+import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.*;
+import java.util.function.Predicate;
 
 public class TemplateBlockAccess extends WrappedWorld {
 
-	private Map<BlockPos, BlockState> blocks;
-	private Cuboid bounds;
-	private BlockPos anchor;
+	private final Map<BlockPos, BlockState> blocks;
+	private final Cuboid bounds;
+	private final BlockPos anchor;
 	private boolean localMode;
 
 	public TemplateBlockAccess(Map<BlockPos, BlockState> blocks, Cuboid bounds, BlockPos anchor) {
-		super(Minecraft.getInstance().level);
+		super(Objects.requireNonNull(Minecraft.getInstance().level));
 		this.blocks = blocks;
 		this.bounds = bounds;
 		this.anchor = anchor;
@@ -67,12 +63,12 @@ public class TemplateBlockAccess extends WrappedWorld {
 	}
 
 	@Override
-	public BlockEntity getBlockEntity(BlockPos pos) {
+	public BlockEntity getBlockEntity(@NotNull BlockPos pos) {
 		return null;
 	}
 
 	@Override
-	public BlockState getBlockState(BlockPos globalPos) {
+	public BlockState getBlockState(@NotNull BlockPos globalPos) {
 		BlockPos pos = localMode ? globalPos : globalPos.subtract(anchor);
 		if (getBounds().contains(pos) && blocks.containsKey(pos)) {
 			return blocks.get(pos);
@@ -86,20 +82,22 @@ public class TemplateBlockAccess extends WrappedWorld {
 	}
 
 	@Override
-	public Holder<Biome> getBiome(BlockPos pos) {
-		return Holder.direct(registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).get(Biomes.THE_VOID));
+	public Holder<Biome> getBiome(@NotNull BlockPos pos) {
+		var biome = registryAccess().registryOrThrow(Registry.BIOME_REGISTRY).get(Biomes.THE_VOID);
+		return Holder.direct(Objects.requireNonNull(biome));
 	}
 
 	@Override
-	public int getMaxLocalRawBrightness(BlockPos p_201696_1_) {
+	public int getMaxLocalRawBrightness(@NotNull BlockPos p_201696_1_) {
 		return 0xF;
 	}
 
 	@Override
-	public List<Entity> getEntities(Entity arg0, AABB arg1, Predicate<? super Entity> arg2) {
+	public List<Entity> getEntities(Entity arg0, @NotNull AABB arg1, @NotNull Predicate<? super Entity> arg2) {
 		return Collections.emptyList();
 	}
 
+	@ParametersAreNonnullByDefault
 	@Override
 	public <T extends Entity> List<T> getEntitiesOfClass(Class<T> arg0, AABB arg1,
 		Predicate<? super T> arg2) {
@@ -111,41 +109,44 @@ public class TemplateBlockAccess extends WrappedWorld {
 		return Collections.emptyList();
 	}
 
+	@ParametersAreNonnullByDefault
 	@Override
 	public int getBrightness(LightLayer lt, BlockPos p_226658_2_) {
 		return lt == LightLayer.BLOCK ? 12 : 14;
 	}
 
 	@Override
-	public int getLightEmission(BlockPos pos) {
+	public int getLightEmission(@NotNull BlockPos pos) {
 		return super.getLightEmission(pos);
 	}
 
+	@ParametersAreNonnullByDefault
 	@Override
 	public BlockPos getHeightmapPos(Types heightmapType, BlockPos pos) {
 		return BlockPos.ZERO;
 	}
 
 	@Override
-	public int getHeight(Types heightmapType, int x, int z) {
+	public int getHeight(@NotNull Types heightmapType, int x, int z) {
 		return 256;
 	}
 
 	@Override
-	public boolean isStateAtPosition(BlockPos pos, Predicate<BlockState> predicate) {
+	public boolean isStateAtPosition(@NotNull BlockPos pos, @NotNull Predicate<BlockState> predicate) {
 		return predicate.test(getBlockState(pos));
 	}
 
 	@Override
-	public boolean destroyBlock(BlockPos arg0, boolean arg1) {
+	public boolean destroyBlock(@NotNull BlockPos arg0, boolean arg1) {
 		return setBlock(arg0, Blocks.AIR.defaultBlockState(), 3);
 	}
 
 	@Override
-	public boolean removeBlock(BlockPos arg0, boolean arg1) {
+	public boolean removeBlock(@NotNull BlockPos arg0, boolean arg1) {
 		return setBlock(arg0, Blocks.AIR.defaultBlockState(), 3);
 	}
 
+	@ParametersAreNonnullByDefault
 	@Override
 	public boolean setBlock(BlockPos pos, BlockState state, int p_241211_3_, int p_241211_4_) {
 		blocks.put(localMode ? pos : pos.subtract(anchor), state);
@@ -167,22 +168,23 @@ public class TemplateBlockAccess extends WrappedWorld {
 		return new Random();
 	}
 
+	@ParametersAreNonnullByDefault
 	@Override
 	public void updateNeighborsAt(BlockPos p_195593_1_, Block p_195593_2_) {}
 
 	@Override
-	public void sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags) {}
+	public void sendBlockUpdated(@NotNull BlockPos pos, @NotNull BlockState oldState, @NotNull BlockState newState, int flags) {}
 
 	@Override
-	public void playSound(Player player, BlockPos pos, SoundEvent soundIn, SoundSource category, float volume,
-		float pitch) {}
+	public void playSound(Player player, @NotNull BlockPos pos, @NotNull SoundEvent soundIn,
+						  @NotNull SoundSource category, float volume, float pitch) {}
 
 	@Override
-	public void addParticle(ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed,
-		double zSpeed) {}
+	public void addParticle(@NotNull ParticleOptions particleData, double x, double y, double z,
+							double xSpeed, double ySpeed, double zSpeed) {}
 
 	@Override
-	public void levelEvent(Player player, int type, BlockPos pos, int data) {}
+	public void levelEvent(Player player, int type, @NotNull BlockPos pos, int data) {}
 
 	public Cuboid getBounds() {
 		return bounds;

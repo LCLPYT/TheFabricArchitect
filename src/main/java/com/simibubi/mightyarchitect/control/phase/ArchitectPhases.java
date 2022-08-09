@@ -29,10 +29,10 @@ public enum ArchitectPhases {
 	EditingThemes(new PhaseEditTheme(), "Editing "),
 	PrintingToMultiplayer(new PrintingToMultiplayer(), "Printing Blocks...");
 	
-	private IArchitectPhase handler;
-	private String displayTitle;
+	private final IArchitectPhase handler;
+	private final String displayTitle;
 	
-	private ArchitectPhases(IArchitectPhase handler, String displayName) {
+	ArchitectPhases(IArchitectPhase handler, String displayName) {
 		this.handler = handler;
 		this.displayTitle = displayName;
 	}

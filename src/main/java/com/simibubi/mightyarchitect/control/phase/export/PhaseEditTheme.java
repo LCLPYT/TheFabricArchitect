@@ -1,13 +1,9 @@
 package com.simibubi.mightyarchitect.control.phase.export;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.mightyarchitect.AllSpecialTextures;
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.compose.Cuboid;
 import com.simibubi.mightyarchitect.control.design.DesignExporter;
 import com.simibubi.mightyarchitect.control.design.DesignType;
@@ -16,10 +12,13 @@ import com.simibubi.mightyarchitect.foundation.utility.BuildingHelper;
 import com.simibubi.mightyarchitect.foundation.utility.outliner.AABBOutline;
 import com.simibubi.mightyarchitect.foundation.utility.outliner.BlockClusterOutline;
 import com.simibubi.mightyarchitect.foundation.utility.outliner.Outline;
-
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 public class PhaseEditTheme extends PhaseBase {
 
@@ -101,10 +100,10 @@ public class PhaseEditTheme extends PhaseBase {
 		if (selectedDesign == null)
 			return;
 
-		MightyClient.outliner.chaseAABB("editThemeSelection", selectedDesign.toAABB());
+		FabricArchitectClient.outliner.chaseAABB("editThemeSelection", selectedDesign.toAABB());
 
 		if (effectiveSelectedDesign != null)
-			MightyClient.outliner.show(effectiveDesignKey, effectiveSelectedDesign)
+			FabricArchitectClient.outliner.show(effectiveDesignKey, effectiveSelectedDesign)
 				.withFaceTexture(AllSpecialTextures.HIGHLIGHT_CHECKERED)
 				.lineWidth(1 / 16f);
 
@@ -119,7 +118,7 @@ public class PhaseEditTheme extends PhaseBase {
 	}
 
 	private void chaseText(Object key, float x, float y, float z, String text) {
-		MightyClient.outliner.chaseText(key, new Vec3(x, y, z), text)
+		FabricArchitectClient.outliner.chaseText(key, new Vec3(x, y, z), text)
 		.disableNormals()
 			.colored(0xffffff);
 	}
@@ -136,7 +135,7 @@ public class PhaseEditTheme extends PhaseBase {
 	}
 
 	public static void setVisualization(Cuboid bounds) {
-		MightyClient.outliner.remove(effectiveDesignKey);
+		FabricArchitectClient.outliner.remove(effectiveDesignKey);
 
 		selectedDesign = bounds;
 		effectiveSelectedDesign = null;

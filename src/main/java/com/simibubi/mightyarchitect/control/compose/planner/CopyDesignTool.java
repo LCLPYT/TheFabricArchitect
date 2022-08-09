@@ -1,11 +1,6 @@
 package com.simibubi.mightyarchitect.control.compose.planner;
 
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import org.lwjgl.glfw.GLFW;
-
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.control.compose.CylinderStack;
 import com.simibubi.mightyarchitect.control.design.DesignPicker;
@@ -13,12 +8,15 @@ import com.simibubi.mightyarchitect.control.design.DesignPicker.RoomDesignMappin
 import com.simibubi.mightyarchitect.control.design.DesignType;
 import com.simibubi.mightyarchitect.control.design.partials.Design;
 import com.simibubi.mightyarchitect.foundation.utility.Keyboard;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.phys.AABB;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class CopyDesignTool extends WallDecorationToolBase {
 
@@ -76,7 +74,7 @@ public class CopyDesignTool extends WallDecorationToolBase {
 		// Outline corners
 		if (selectingCorners) {
 			Consumer<BlockPos> renderCorner = pos -> {
-				MightyClient.outliner
+				FabricArchitectClient.outliner
 					.showAABB(pos,
 						new AABB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1,
 							pos.getY() + selectedRoom.height, pos.getZ() + 1))
@@ -95,7 +93,7 @@ public class CopyDesignTool extends WallDecorationToolBase {
 		// Outline Walls
 		BiConsumer<BlockPos, BlockPos> renderWall = (start, size) -> {
 			BlockPos end = start.offset(size);
-			MightyClient.outliner
+			FabricArchitectClient.outliner
 				.showAABB(start,
 					new AABB(start.getX() - 1 / 2d, start.getY(), start.getZ() - 1 / 2d, end.getX() - 1 / 2d,
 						end.getY(), end.getZ() - 1 / 2d))

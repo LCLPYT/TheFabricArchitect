@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.simibubi.mightyarchitect.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "client.BufferBuilderAccessor",
+    "client.ClientPacketListenerMixin",
+    "client.EffectInstanceMixin",
+    "client.GameRendererAccessor",
+    "client.ItemRendererAccessor",
+    "client.KeyboardHandlerMixin",
+    "client.KeyMappingAccessor",
+    "client.LanguageInfoMixin",
+    "client.MouseHandlerMixin",
+    "client.RenderTypeAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": []
+}

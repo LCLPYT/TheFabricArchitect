@@ -1,21 +1,20 @@
 package com.simibubi.mightyarchitect.control.compose;
 
+import com.simibubi.mightyarchitect.control.design.DesignTheme;
+import net.minecraft.core.BlockPos;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
-
-import com.simibubi.mightyarchitect.control.design.DesignTheme;
-
-import net.minecraft.core.BlockPos;
 
 public class GroundPlan {
 
 	public static final int MAX_LAYERS = 5;
 
 	public DesignTheme theme;
-	private List<Stack> stacks;
-	private List<Room> interior;
+	private final List<Stack> stacks;
+	private final List<Room> interior;
 	
 	public GroundPlan(DesignTheme theme) {
 		this.theme = theme;
@@ -29,9 +28,7 @@ public class GroundPlan {
 			if (stack instanceof CylinderStack)
 				return;
 			 
-			stack.forEach(room -> {
-				interior.add(room.getInterior());				
-			});
+			stack.forEach(room -> interior.add(room.getInterior()));
 		});
 		return interior;
 	}

@@ -1,25 +1,20 @@
 package com.simibubi.mightyarchitect.control.palette;
 
+import com.google.gson.JsonElement;
+import com.google.gson.internal.Streams;
+import com.google.gson.stream.JsonReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.simibubi.mightyarchitect.TheFabricArchitect;
+import com.simibubi.mightyarchitect.foundation.utility.FilesHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import com.google.gson.JsonElement;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.simibubi.mightyarchitect.TheMightyArchitect;
-import com.simibubi.mightyarchitect.foundation.utility.FilesHelper;
-
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
+import java.util.*;
 
 public class PaletteStorage {
 
@@ -31,8 +26,7 @@ public class PaletteStorage {
 			loadAllPalettes();
 		Random random = new Random();
 		List<String> names = new ArrayList<>(palettes.keySet());
-		PaletteDefinition palette = palettes.get(names.get(random.nextInt(names.size())));
-		return palette;
+		return palettes.get(names.get(random.nextInt(names.size())));
 	}
 
 	public static PaletteDefinition getPalette(String name) {
@@ -81,7 +75,7 @@ public class PaletteStorage {
 		resourcePalettes = new HashMap<>();
 		loadResourcePalettes();
 		try {
-			Files.list(Paths.get("palettes/")).forEach(path -> loadPalette(path));
+			Files.list(Paths.get("palettes/")).forEach(PaletteStorage::loadPalette);
 		} catch (NoSuchFileException e) {
 			// No palettes created yet
 		} catch (IOException e) {
@@ -91,14 +85,15 @@ public class PaletteStorage {
 
 	public static void loadPalette(Path path) {
 		PaletteDefinition palette = importPalette(path);
-		palettes.put(palette.getName(), palette);
+		if (palette != null)
+			palettes.put(palette.getName(), palette);
 	}
 
 	public static void loadResourcePalettes() {
 		int index = 0;
 		while (index < 2048) {
 			String path = "palettes/p" + index + ".json";
-			if (TheMightyArchitect.class.getClassLoader().getResource(path) == null)
+			if (TheFabricArchitect.class.getClassLoader().getResource(path) == null)
 				break;
 			CompoundTag tag = FilesHelper.loadJsonResourceAsNBT(path);
 			PaletteDefinition paletteDefinition = PaletteDefinition.fromNBT(tag);

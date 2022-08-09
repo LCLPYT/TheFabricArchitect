@@ -1,18 +1,17 @@
 package com.simibubi.mightyarchitect.control.design;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.simibubi.mightyarchitect.control.palette.BlockOrientation;
 import com.simibubi.mightyarchitect.control.palette.Palette;
 import com.simibubi.mightyarchitect.control.palette.PaletteBlockInfo;
-
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.StringRepresentable;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class DesignSlice {
 
@@ -24,9 +23,9 @@ public class DesignSlice {
 		MaskAbove("-> Slice does not count towards effective Height"), 
 		MaskBelow("-> Add this slice onto lower layers");
 
-		private String description;
+		private final String description;
 		
-		private DesignSliceTrait(String description) {
+		DesignSliceTrait(String description) {
 			this.description = description;
 		}
 		
@@ -122,40 +121,32 @@ public class DesignSlice {
 		Set<Integer> newHeights = new HashSet<>();
 		for (Integer integer : heightsList) {
 			switch (trait) {
-			case Standard:
-				newHeights.add(integer + 1);
-				break;
-			case CloneOnce:
-				newHeights.add(integer + 1);
-				newHeights.add(integer + 2);
-				break;
-			case CloneThrice:
-				newHeights.add(integer + 1);
-				newHeights.add(integer + 2);
-				newHeights.add(integer + 3);
-				newHeights.add(integer + 4);
-				break;
-			case Optional:
-				newHeights.add(integer);
-				newHeights.add(integer + 1);
-				break;
-			case MaskAbove:
-			case MaskBelow:
-				newHeights.add(integer);
-				break;
+				case Standard -> newHeights.add(integer + 1);
+				case CloneOnce -> {
+					newHeights.add(integer + 1);
+					newHeights.add(integer + 2);
+				}
+				case CloneThrice -> {
+					newHeights.add(integer + 1);
+					newHeights.add(integer + 2);
+					newHeights.add(integer + 3);
+					newHeights.add(integer + 4);
+				}
+				case Optional -> {
+					newHeights.add(integer);
+					newHeights.add(integer + 1);
+				}
+				case MaskAbove, MaskBelow -> newHeights.add(integer);
 			}
 		}
 		return newHeights;
 	}
 
 	public int adjustDefaultHeight(int defaultHeight) {
-		switch (trait) {
-		case MaskAbove:
-		case MaskBelow:
-			return defaultHeight;
-		default:
-			return defaultHeight + 1;
-		}
+		return switch (trait) {
+			case MaskAbove, MaskBelow -> defaultHeight;
+			default -> defaultHeight + 1;
+		};
 	}
 
 	public int addToPrintedLayers(List<DesignSlice> toPrint, int currentHeight, int targetHeight) {

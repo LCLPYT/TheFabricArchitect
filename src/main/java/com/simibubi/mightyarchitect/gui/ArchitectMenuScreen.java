@@ -1,26 +1,25 @@
 package com.simibubi.mightyarchitect.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.lwjgl.glfw.GLFW;
-
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.control.ArchitectMenu;
 import com.simibubi.mightyarchitect.control.ArchitectMenu.KeyBindList;
 import com.simibubi.mightyarchitect.control.phase.ArchitectPhases;
 import com.simibubi.mightyarchitect.foundation.utility.LerpedFloat;
 import com.simibubi.mightyarchitect.foundation.utility.LerpedFloat.Chaser;
-
+import com.simibubi.mightyarchitect.mixin.client.KeyMappingAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.FormattedCharSequence;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArchitectMenuScreen extends Screen {
 
@@ -101,7 +100,7 @@ public class ArchitectMenuScreen extends Screen {
 			return true;
 		}
 
-		if (keyCode == MightyClient.COMPOSE.getKey()
+		if (keyCode == ((KeyMappingAccessor) FabricArchitectClient.COMPOSE).getKey()
 			.getValue()) {
 			if (hideOnClose)
 				setVisible(false);
@@ -169,7 +168,7 @@ public class ArchitectMenuScreen extends Screen {
 		int xPos = x + 4;
 
 		Font textRenderer = mc.font;
-		String compose = MightyClient.COMPOSE.getTranslatedKeyMessage()
+		String compose = FabricArchitectClient.COMPOSE.getTranslatedKeyMessage()
 			.getString()
 			.toUpperCase();
 		if (!focused) {

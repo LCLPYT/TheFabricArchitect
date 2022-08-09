@@ -1,11 +1,8 @@
 package com.simibubi.mightyarchitect.gui;
 
-import java.nio.file.Paths;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
-import com.simibubi.mightyarchitect.MightyClient;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.control.design.DesignExporter;
 import com.simibubi.mightyarchitect.control.palette.Palette;
@@ -13,7 +10,6 @@ import com.simibubi.mightyarchitect.control.palette.PaletteDefinition;
 import com.simibubi.mightyarchitect.control.palette.PaletteStorage;
 import com.simibubi.mightyarchitect.foundation.utility.FilesHelper;
 import com.simibubi.mightyarchitect.gui.widgets.IconButton;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -22,13 +18,15 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 
+import java.nio.file.Paths;
+
 public class PalettePickerScreen extends AbstractSimiScreen {
 
 	private PaletteButton primary, secondary;
 	private IconButton buttonAddPalette;
 	private IconButton buttonOpenFolder;
 	private IconButton buttonRefresh;
-	private boolean scanPicker;
+	private final boolean scanPicker;
 
 	public PalettePickerScreen() {
 		this(false);
@@ -205,7 +203,7 @@ public class PalettePickerScreen extends AbstractSimiScreen {
 			ArchitectManager.getModel()
 				.swapPrimaryPalette(((PaletteButton) button).palette);
 			updateSelected();
-			MightyClient.renderer.update();
+			FabricArchitectClient.renderer.update();
 		}
 	}
 
@@ -224,7 +222,7 @@ public class PalettePickerScreen extends AbstractSimiScreen {
 			ArchitectManager.getModel()
 				.swapSecondaryPalette(((PaletteButton) button).palette);
 			updateSelected();
-			MightyClient.renderer.update();
+			FabricArchitectClient.renderer.update();
 		}
 	}
 
