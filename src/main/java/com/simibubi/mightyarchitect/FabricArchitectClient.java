@@ -5,6 +5,7 @@ import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.control.SchematicRenderer;
 import com.simibubi.mightyarchitect.control.phase.PrintingToMultiplayer;
 import com.simibubi.mightyarchitect.event.ChatReceivedClientCallback;
+import com.simibubi.mightyarchitect.event.LevelRenderLastCallback;
 import com.simibubi.mightyarchitect.foundation.SuperRenderTypeBuffer;
 import com.simibubi.mightyarchitect.foundation.utility.AnimationTickHolder;
 import com.simibubi.mightyarchitect.foundation.utility.ShaderManager;
@@ -17,8 +18,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.Camera;
 import net.minecraft.client.KeyMapping;
@@ -51,7 +50,7 @@ public class FabricArchitectClient implements ClientModInitializer {
                 NAME));
 
         ClientTickEvents.START_CLIENT_TICK.register(FabricArchitectClient::onStartTick);
-        WorldRenderEvents.LAST.register(FabricArchitectClient::onRenderWorldLast);
+        LevelRenderLastCallback.EVENT.register(FabricArchitectClient::onRenderWorldLast);
         ClientTickEvents.START_CLIENT_TICK.register(ShaderManager::onClientTick);
         ClientTickEvents.START_CLIENT_TICK.register(ScreenHelper::onClientTick);
         ChatReceivedClientCallback.EVENT.register(PrintingToMultiplayer::onCommandFeedback);
@@ -70,8 +69,7 @@ public class FabricArchitectClient implements ClientModInitializer {
         renderer.tick();
     }
 
-    private static void onRenderWorldLast(WorldRenderContext context) {
-        PoseStack ms = context.matrixStack();
+    private static void onRenderWorldLast(PoseStack ms, float partialTicks) {
         Camera info = Minecraft.getInstance().gameRenderer.getMainCamera();
         Vec3 view = info.getPosition();
 

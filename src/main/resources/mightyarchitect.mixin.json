@@ -8,6 +8,7 @@
     "client.ClientPacketListenerMixin",
     "client.EffectInstanceMixin",
     "client.GameRendererAccessor",
+    "client.GameRendererMixin",
     "client.ItemRendererAccessor",
     "client.KeyboardHandlerMixin",
     "client.KeyMappingAccessor",
