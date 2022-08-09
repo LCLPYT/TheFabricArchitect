@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.simibubi.mightyarchitect.FabricArchitectClient;
 import com.simibubi.mightyarchitect.foundation.MatrixStacker;
 import com.simibubi.mightyarchitect.foundation.SuperByteBuffer;
 import net.minecraft.client.Minecraft;
@@ -88,7 +89,7 @@ public class SchematicRenderer {
 		Map<RenderType, BufferBuilder> buffers = new HashMap<>();
 		PoseStack ms = new PoseStack();
 
-		// TODO check compatibility with sodium and iris
+		// TODO fix render glitch with iris
 		BlockPos.betweenClosedStream(schematic.getLocalBounds()
 			.toMBB())
 			.forEach(localPos -> {
@@ -103,7 +104,7 @@ public class SchematicRenderer {
 						continue;
 
 					if (!buffers.containsKey(blockRenderLayer))
-						buffers.put(blockRenderLayer, new BufferBuilder(DefaultVertexFormat.BLOCK.getIntegerSize()));
+						buffers.put(blockRenderLayer, FabricArchitectClient.getInterface().createBufferBuilder());
 
 					BufferBuilder bufferBuilder = buffers.get(blockRenderLayer);
 					if (startedBufferBuilders.add(blockRenderLayer))

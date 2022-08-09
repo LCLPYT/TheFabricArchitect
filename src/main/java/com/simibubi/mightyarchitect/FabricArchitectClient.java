@@ -12,6 +12,9 @@ import com.simibubi.mightyarchitect.foundation.utility.ShaderManager;
 import com.simibubi.mightyarchitect.foundation.utility.outliner.Outliner;
 import com.simibubi.mightyarchitect.gui.ScreenHelper;
 import com.simibubi.mightyarchitect.networking.IPacket;
+import com.simibubi.mightyarchitect.util.ArchitectInterface;
+import com.simibubi.mightyarchitect.util.IrisArchitectImpl;
+import com.simibubi.mightyarchitect.util.VanillaArchitectImpl;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -26,6 +29,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nonnull;
+
 import static com.simibubi.mightyarchitect.TheFabricArchitect.NAME;
 
 @Environment(EnvType.CLIENT)
@@ -36,10 +41,10 @@ public class FabricArchitectClient implements ClientModInitializer {
 
     public static SchematicRenderer renderer = new SchematicRenderer();
     public static Outliner outliner = new Outliner();
+    private static ArchitectInterface architectInterface = null;
 
     @Override
     public void onInitializeClient() {
-        // TODO init color handlers
         COMPOSE = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "keybind.mightyarchitect.start_composing",
                 GLFW.GLFW_KEY_G,
@@ -98,5 +103,20 @@ public class FabricArchitectClient implements ClientModInitializer {
         final var buf = PacketByteBufs.create();
         packet.toBytes(buf);
         ClientPlayNetworking.send(packet.getId(), buf);
+    }
+
+    @Nonnull
+    public static ArchitectInterface getInterface() {
+        if (architectInterface != null)
+            return architectInterface;
+
+        try {
+            Class.forName("net.irisshaders.iris.api.v0.IrisApi");
+            // Iris is installed, create Iris interface.
+            return architectInterface = new IrisArchitectImpl();
+        } catch (ClassNotFoundException ignored) {
+            // Iris is not installed, create vanilla interface.
+            return architectInterface = new VanillaArchitectImpl();
+        }
     }
 }
