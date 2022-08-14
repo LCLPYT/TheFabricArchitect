@@ -48,7 +48,6 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // modRuntimeOnly fg.deobf("mezz.jei:jei-${jei_minecraft_version}:${jei_version}")
     modImplementation "maven.modrinth:sodium:${project.sodium_version}"
     modImplementation "maven.modrinth:iris:${project.iris_version}"
     modImplementation "org.anarres:jcpp:${project.jcpp_version}" // Preprocessing library used by Iris
