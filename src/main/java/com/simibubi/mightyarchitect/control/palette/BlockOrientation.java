@@ -110,7 +110,7 @@ public enum BlockOrientation {
 
 	public BlockState apply(BlockState state, boolean forceAxis) {
 		BlockState newState = state;
-		newState = newState.rotate(Minecraft.getInstance().level, BlockPos.ZERO, getRotation());
+		newState = newState.rotate(getRotation());
 
 		if (hasHalf() && state.hasProperty(BlockStateProperties.HALF))
 			newState = newState.setValue(BlockStateProperties.HALF, half);

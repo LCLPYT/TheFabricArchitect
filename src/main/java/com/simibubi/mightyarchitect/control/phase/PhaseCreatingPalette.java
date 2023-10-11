@@ -12,7 +12,10 @@ import com.simibubi.mightyarchitect.control.palette.Palette;
 import com.simibubi.mightyarchitect.control.palette.PaletteDefinition;
 import com.simibubi.mightyarchitect.foundation.utility.Lang;
 
+import com.simibubi.mightyarchitect.render.RenderTypeHelper;
+import com.simibubi.mightyarchitect.util.EnvHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -23,7 +26,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.ModelData;
 
 public class PhaseCreatingPalette extends PhaseBase implements IDrawBlockHighlights {
 
@@ -109,10 +111,10 @@ public class PhaseCreatingPalette extends PhaseBase implements IDrawBlockHighlig
 			ms.scale(15 / 16f, 15 / 16f, 15 / 16f);
 			ms.translate(1 / 32f, 1 / 32f, 1 / 32f);
 
-			for (RenderType renderType : blockModel.getRenderTypes(state, minecraft.level.random, ModelData.EMPTY))
+			for (RenderType renderType : RenderTypeHelper.getRenderTypes(state))
 				minecraft.getBlockRenderer()
 					.renderBatched(state, translate, minecraft.level, ms, buffer.getBuffer(renderType), false,
-						minecraft.level.random, ModelData.EMPTY, renderType);
+						minecraft.level.random);
 
 			ms.popPose();
 		}

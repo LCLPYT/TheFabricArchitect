@@ -5,12 +5,12 @@ import java.util.function.Supplier;
 
 import com.simibubi.mightyarchitect.item.ArchitectWandItem;
 
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
 
 public enum AllItems {
 
@@ -30,11 +30,10 @@ public enum AllItems {
 		return new Properties();
 	}
 
-	public static void registerItems(RegisterEvent event) {
-		event.register(ForgeRegistries.ITEMS.getRegistryKey(), helper -> {
-			for (AllItems item : values())
-				helper.register(item.id, item.get());
-		});
+	public static void registerItems() {
+		for (AllItems item : values()) {
+            Registry.register(BuiltInRegistries.ITEM, item.id, item.get());
+        }
 	}
 
 	public Item get() {

@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
+import com.simibubi.mightyarchitect.mixin.KeyMappingAccessor;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -13,8 +15,6 @@ import com.mojang.blaze3d.platform.InputConstants.Type;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 
 public enum Keybinds {
 
@@ -50,23 +50,23 @@ public enum Keybinds {
 		callbacks.add(callback);
 	}
 
-	public static void register(RegisterKeyMappingsEvent event) {
+	public static void register() {
 		for (Keybinds key : values()) {
 			key.keybind = new KeyMapping(key.description, key.initialType, key.key, TheMightyArchitect.NAME);
 			if (!key.modifiable)
 				continue;
-			event.register(key.keybind);
+			KeyBindingHelper.registerKeyBinding(key.keybind);
 		}
 	}
 
-	public static void handleKey(InputEvent.Key event) {
-		handleInput(event.getAction(), k -> k.getKeybind()
-			.matches(event.getKey(), event.getScanCode()));
+	public static void handleKey(int key, int scanCode, int action, int modifiers) {
+		handleInput(action, k -> k.getKeybind()
+				.matches(key, scanCode));
 	}
 
-	public static void handleMouseButton(InputEvent.MouseButton event) {
-		handleInput(event.getAction(), k -> k.getKeybind()
-			.matchesMouse(event.getButton()));
+	public static void handleMouseButton(int button, int action, int modifiers) {
+		handleInput(action, k -> k.getKeybind()
+				.matchesMouse(action));
 	}
 
 	private static void handleInput(int action, Predicate<Keybinds> filter) {
@@ -95,12 +95,12 @@ public enum Keybinds {
 	}
 
 	public boolean matches(int key) {
-		return keybind.getKey()
+		return ((KeyMappingAccessor) keybind).getKey()
 			.getValue() == key;
 	}
 
 	public int getBoundCode() {
-		return keybind.getKey()
+		return ((KeyMappingAccessor) keybind).getKey()
 			.getValue();
 	}
 

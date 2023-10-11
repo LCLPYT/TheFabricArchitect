@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.simibubi.mightyarchitect.mixin.KeyMappingAccessor;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.simibubi.mightyarchitect.control.ArchitectManager;
@@ -45,7 +46,7 @@ public class LayerStyleTool extends WallDecorationToolBase {
 		if (selectedRoom == null)
 			return;
 
-		Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots).filter(keyMapping -> keyMapping.getKey().getValue() == key).findFirst();
+		Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots).filter(keyMapping -> ((KeyMappingAccessor) keyMapping).getKey().getValue() == key).findFirst();
 		if (mapping.isEmpty())
 			return;
 

@@ -2,7 +2,7 @@ package com.simibubi.mightyarchitect.control;
 
 import com.simibubi.mightyarchitect.AllBlocks;
 import com.simibubi.mightyarchitect.AllItems;
-import com.simibubi.mightyarchitect.AllPackets;
+import com.simibubi.mightyarchitect.ClientPackets;
 import com.simibubi.mightyarchitect.control.design.DesignExporter;
 import com.simibubi.mightyarchitect.control.palette.Palette;
 import com.simibubi.mightyarchitect.foundation.utility.Lang;
@@ -73,7 +73,7 @@ public class ArchitectKits {
 	}
 
 	private static void setHotbarItem(int slot, ItemStack stack) {
-		AllPackets.channel.sendToServer(new SetHotbarItemPacket(slot, stack));
+		ClientPackets.sendToServer(new SetHotbarItemPacket(slot, stack));
 	}
 
 	private static void setHotbarBlock(int slot, Block block) {

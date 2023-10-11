@@ -3,6 +3,7 @@ package com.simibubi.mightyarchitect.control.compose.planner;
 import java.util.Arrays;
 import java.util.Optional;
 
+import com.simibubi.mightyarchitect.mixin.KeyMappingAccessor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.glfw.GLFW;
 
@@ -57,7 +58,7 @@ public class PalettePainterTool extends WallDecorationToolBase {
 
 	@Override
 	public void handleKeyInput(int key) {
-		Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots).filter(keyMapping -> keyMapping.getKey().getValue() == key).findFirst();
+		Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots).filter(keyMapping -> ((KeyMappingAccessor) keyMapping).getKey().getValue() == key).findFirst();
 		if (mapping.isEmpty())
 			return;
 

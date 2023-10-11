@@ -2,6 +2,9 @@ package com.simibubi.mightyarchitect.gui;
 
 import javax.annotation.Nullable;
 
+import com.simibubi.mightyarchitect.mixin.ItemRendererAccessor;
+import com.simibubi.mightyarchitect.render.RenderTypeHelper;
+import net.minecraft.client.renderer.*;
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -15,10 +18,6 @@ import com.simibubi.mightyarchitect.foundation.utility.Color;
 import com.simibubi.mightyarchitect.foundation.utility.VecHelper;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -35,8 +34,6 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.RenderTypeHelper;
-import net.minecraftforge.client.model.data.ModelData;
 
 public class GuiGameElement {
 
@@ -168,20 +165,19 @@ public class GuiGameElement {
 				RenderType renderType = Sheets.translucentCullBlockSheet();
 				blockRenderer.getModelRenderer()
 					.renderModel(ms.last(), buffer.getBuffer(renderType), blockState, blockModel, 1, 1, 1,
-						LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, ModelData.EMPTY, null);
+						LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
 			} else {
 				int color = Minecraft.getInstance()
 					.getBlockColors()
 					.getColor(blockState, null, null, 0);
 				Color rgb = new Color(color == -1 ? this.color : color);
 
-				for (RenderType chunkType : blockModel.getRenderTypes(blockState, RandomSource.create(42L),
-					ModelData.EMPTY)) {
+				for (RenderType chunkType : RenderTypeHelper.getRenderTypes(blockState)) {
 					RenderType renderType = RenderTypeHelper.getEntityRenderType(chunkType, true);
 					blockRenderer.getModelRenderer()
 						.renderModel(ms.last(), buffer.getBuffer(renderType), blockState, blockModel,
 							rgb.getRedAsFloat(), rgb.getGreenAsFloat(), rgb.getBlueAsFloat(), LightTexture.FULL_BRIGHT,
-							OverlayTexture.NO_OVERLAY, ModelData.EMPTY, chunkType);
+							OverlayTexture.NO_OVERLAY);
 				}
 			}
 
@@ -243,7 +239,7 @@ public class GuiGameElement {
 				.getItemRenderer();
 			BakedModel bakedModel = renderer.getModel(stack, null, null, 0);
 
-			renderer.textureManager.getTexture(InventoryMenu.BLOCK_ATLAS)
+			((ItemRendererAccessor) renderer).getTextureManager().getTexture(InventoryMenu.BLOCK_ATLAS)
 				.setFilter(false, false);
 			RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
 			RenderSystem.enableBlend();

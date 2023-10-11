@@ -2,28 +2,26 @@ package com.simibubi.mightyarchitect.control.phase;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import com.google.common.collect.ImmutableList;
 import com.simibubi.mightyarchitect.TheMightyArchitect;
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 import com.simibubi.mightyarchitect.control.TemplateBlockAccess;
+import com.simibubi.mightyarchitect.event.ChatReceivedClientCallback;
 import com.simibubi.mightyarchitect.foundation.utility.Lang;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
-@EventBusSubscriber(value = Dist.CLIENT)
 public class PrintingToMultiplayer extends PhaseBase {
 
 	static List<BlockPos> remaining;
@@ -77,8 +75,7 @@ public class PrintingToMultiplayer extends PhaseBase {
 		}
 	}
 
-	@SubscribeEvent(receiveCanceled = true)
-	public static void onCommandFeedback(ClientChatReceivedEvent event) {
+	public static void onCommandFeedback(ChatReceivedClientCallback.Data event) {
 		if (event.getMessage() == null)
 			return;
 

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import com.simibubi.mightyarchitect.mixin.KeyMappingAccessor;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.common.collect.ImmutableList;
@@ -89,7 +90,7 @@ public class PhaseComposing extends PhaseBase implements IRenderGameOverlay {
 
 		if (toolSelection.focused) {
 			Optional<KeyMapping> mapping = Arrays.stream(Minecraft.getInstance().options.keyHotbarSlots)
-				.filter(keyMapping -> keyMapping.getKey()
+				.filter(keyMapping -> ((KeyMappingAccessor) keyMapping).getKey()
 					.getValue() == key)
 				.findFirst();
 			if (mapping.isEmpty())

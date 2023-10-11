@@ -5,17 +5,19 @@ import com.simibubi.mightyarchitect.control.SchematicRenderer;
 import com.simibubi.mightyarchitect.foundation.utility.AnimationTickHolder;
 import com.simibubi.mightyarchitect.foundation.utility.outliner.Outliner;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.fabricmc.api.ClientModInitializer;
 
-@EventBusSubscriber(value = Dist.CLIENT)
-public class MightyClient {
+public class MightyClient implements ClientModInitializer {
 
 	public static SchematicRenderer renderer = new SchematicRenderer();
 	public static Outliner outliner = new Outliner();
 
-	public static void init() {
+	@Override
+	public void onInitializeClient() {
 		AllItems.initColorHandlers();
+		Events.register();
+		Keybinds.register();
+		ArchitectManager.registerEvents();
 	}
 
 	public static void tick() {

@@ -1,5 +1,7 @@
 {
 	"item.mightyarchitect.architect_wand": "Design Exporter",
 	"block.mightyarchitect.slice_marker": "Design Layer Marker",
-	"block.mightyarchitect.design_anchor": "Design Marker"
+	"block.mightyarchitect.design_anchor": "Design Marker",
+	"keybind.mightyarchitect.start_composing": "Start Composing",
+	"keybind.mightyarchitect.tool_menu": "Tool Menu (Hold)"
 }

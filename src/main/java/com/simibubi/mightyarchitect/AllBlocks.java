@@ -7,12 +7,12 @@ import com.simibubi.mightyarchitect.block.DesignAnchorBlock;
 import com.simibubi.mightyarchitect.block.IJustForRendering;
 import com.simibubi.mightyarchitect.block.SliceMarkerBlock;
 
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
 
 public enum AllBlocks {
 
@@ -28,19 +28,18 @@ public enum AllBlocks {
 		this.id = TheMightyArchitect.asResource(name().toLowerCase(Locale.ROOT));
 	}
 
-	public static void registerBlocks(RegisterEvent event) {
-		event.register(ForgeRegistries.BLOCKS.getRegistryKey(), helper -> {
-			for (AllBlocks block : values())
-				helper.register(block.id, block.get());
-		});
+	public static void registerBlocks() {
+		for (AllBlocks block : values()) {
+			Registry.register(BuiltInRegistries.BLOCK, block.id, block.get());
+		}
 	}
 
-	public static void registerItems(RegisterEvent event) {
-		event.register(ForgeRegistries.ITEMS.getRegistryKey(), helper -> {
-			for (AllBlocks block : values())
-				if (!(block.get() instanceof IJustForRendering))
-					helper.register(block.id, new BlockItem(block.get(), AllItems.standardProperties()));
-		});
+	public static void registerItems() {
+		for (AllBlocks block : values()) {
+			if (block.get() instanceof IJustForRendering) continue;
+
+			Registry.register(BuiltInRegistries.ITEM, block.id, new BlockItem(block.get(), AllItems.standardProperties()));
+		}
 	}
 
 	public Block get() {

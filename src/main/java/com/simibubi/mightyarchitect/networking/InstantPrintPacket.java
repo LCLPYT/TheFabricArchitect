@@ -7,16 +7,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.simibubi.mightyarchitect.TheMightyArchitect;
 import com.simibubi.mightyarchitect.foundation.utility.BlockHelper;
 
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.NetworkEvent;
 
-public class InstantPrintPacket {
+public class InstantPrintPacket implements FabricPacket, IPacketHandler {
+
+	public static final PacketType<InstantPrintPacket> TYPE = PacketType.create(
+			TheMightyArchitect.asResource("instant_print"), InstantPrintPacket::new);
 
 	private BunchOfBlocks blocks;
 
@@ -37,7 +45,8 @@ public class InstantPrintPacket {
 		this.blocks = new BunchOfBlocks(blocks);
 	}
 
-	public void toBytes(FriendlyByteBuf buf) {
+	@Override
+	public void write(FriendlyByteBuf buf) {
 		buf.writeInt(blocks.size);
 		blocks.blocks.forEach((pos, state) -> {
 			buf.writeNbt(NbtUtils.writeBlockState(state));
@@ -45,16 +54,20 @@ public class InstantPrintPacket {
 		});
 	}
 
-	public void handle(Supplier<NetworkEvent.Context> context) {
-		if (!context.get()
-			.getSender()
+	@Override
+	public PacketType<?> getType() {
+		return TYPE;
+	}
+
+	@Override
+	public void handle(ServerPlayer player, PacketSender responseSender) {
+		if (!player
 			.hasPermissions(2))
 			return;
-		context.get()
-			.enqueueWork(() -> {
+		player.getServer()
+			.execute(() -> {
 				blocks.blocks.forEach((pos, state) -> {
-					context.get()
-						.getSender()
+					player
 						.getCommandSenderWorld()
 						.setBlock(pos, state, 3);
 				});

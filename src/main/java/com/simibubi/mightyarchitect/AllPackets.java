@@ -1,29 +1,29 @@
 package com.simibubi.mightyarchitect;
 
+import com.simibubi.mightyarchitect.networking.IPacketHandler;
 import com.simibubi.mightyarchitect.networking.InstantPrintPacket;
 import com.simibubi.mightyarchitect.networking.PlaceSignPacket;
 import com.simibubi.mightyarchitect.networking.SetHotbarItemPacket;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.level.ServerPlayer;
 
 public class AllPackets {
 
-	public static SimpleChannel channel;
-
 	public static void registerPackets() {
-		channel = NetworkRegistry.newSimpleChannel(new ResourceLocation(TheMightyArchitect.ID, "simple_channel"),
-				() -> "1", s -> true, v -> v.equals("1"));
-
-		int i = 0;
-
-		channel.registerMessage(i++, InstantPrintPacket.class, InstantPrintPacket::toBytes, InstantPrintPacket::new,
-				InstantPrintPacket::handle);
-		channel.registerMessage(i++, PlaceSignPacket.class, PlaceSignPacket::toBytes, PlaceSignPacket::new,
-				PlaceSignPacket::handle);
-		channel.registerMessage(i++, SetHotbarItemPacket.class, SetHotbarItemPacket::toBytes, SetHotbarItemPacket::new,
-				SetHotbarItemPacket::handle);
+		register(InstantPrintPacket.TYPE);
+		register(PlaceSignPacket.TYPE);
+		register(SetHotbarItemPacket.TYPE);
 	}
 
+	private static <T extends FabricPacket & IPacketHandler> void register(PacketType<T> type) {
+		ServerPlayNetworking.registerGlobalReceiver(type, AllPackets::receive);
+	}
+
+	private static <T extends IPacketHandler> void receive(T packet, ServerPlayer player, PacketSender responseSender) {
+		packet.handle(player, responseSender);
+	}
 }

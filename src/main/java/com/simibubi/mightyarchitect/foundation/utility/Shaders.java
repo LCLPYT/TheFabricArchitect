@@ -2,6 +2,7 @@ package com.simibubi.mightyarchitect.foundation.utility;
 
 import com.simibubi.mightyarchitect.TheMightyArchitect;
 
+import com.simibubi.mightyarchitect.mixin.GameRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
@@ -32,7 +33,7 @@ public enum Shaders {
 		}
 
 		if (active && !isActive()) {
-			mc.gameRenderer.loadEffect(location);
+			((GameRendererAccessor) mc.gameRenderer).invokeLoadEffect(location);
 			return;
 		}
 

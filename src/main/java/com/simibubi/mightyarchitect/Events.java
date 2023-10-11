@@ -1,102 +1,76 @@
 package com.simibubi.mightyarchitect;
 
-import static net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.FORGE;
-import static net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.MOD;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.mightyarchitect.control.ArchitectManager;
 
+import com.simibubi.mightyarchitect.control.phase.PrintingToMultiplayer;
+import com.simibubi.mightyarchitect.event.ChatReceivedClientCallback;
+import com.simibubi.mightyarchitect.event.KeyInputCallback;
+import com.simibubi.mightyarchitect.event.LevelRenderLastCallback;
+import com.simibubi.mightyarchitect.event.MouseButtonEvents;
+import com.simibubi.mightyarchitect.foundation.utility.ShaderManager;
+import com.simibubi.mightyarchitect.gui.ScreenHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
+@Environment(EnvType.CLIENT)
 public class Events {
 
-	@Mod.EventBusSubscriber(modid = TheMightyArchitect.ID, bus = MOD, value = Dist.CLIENT)
-	public static class ModEvents {
-
-		@SubscribeEvent
-		public static void onClientSetup(FMLClientSetupEvent event) {}
-
-		@SubscribeEvent
-		public static void register(RegisterKeyMappingsEvent event) {
-			Keybinds.register(event);
-		}
-		
-		@SubscribeEvent
-		public static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
-			event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "mightyarchitect", ArchitectManager::onDrawGameOverlay);
-		}
-
+	public static void register() {
+		ClientTickEvents.END_CLIENT_TICK.register(Events::onTick);
+		KeyInputCallback.EVENT.register(Events::keyPress);
+		MouseButtonEvents.PRE.register(Events::mouseButtonPress);
+		MouseButtonEvents.POST.register(Events::mouseButtonPress);
+		LevelRenderLastCallback.EVENT.register(Events::onRenderWorld);
+		ClientTickEvents.START_CLIENT_TICK.register(ShaderManager::onClientTick);
+		ClientTickEvents.START_CLIENT_TICK.register(ScreenHelper::onClientTick);
+		ChatReceivedClientCallback.EVENT.register(PrintingToMultiplayer::onCommandFeedback);
 	}
 
-	@Mod.EventBusSubscriber(modid = TheMightyArchitect.ID, bus = FORGE, value = Dist.CLIENT)
-	public static class ForgeEvents {
+	public static void onTick(Minecraft client) {
+		if (isInLevel())
+			MightyClient.tick();
+	}
 
-		@SubscribeEvent
-		public static void onTick(ClientTickEvent event) {
-			if (event.phase == Phase.START)
-				return;
-			if (isInLevel())
-				MightyClient.tick();
-		}
+	public static void keyPress(int key, int scanCode, int action, int modifiers) {
+		if (isInLevel() && !isInGUI())
+			Keybinds.handleKey(key, scanCode, action, modifiers);
+	}
 
-		@SubscribeEvent
-		public static void keyPress(InputEvent.Key event) {
-			if (isInLevel() && !isInGUI())
-				Keybinds.handleKey(event);
-		}
+	public static void mouseButtonPress(int button, int action, int modifiers) {
+		if (isInLevel() && !isInGUI())
+			Keybinds.handleMouseButton(button, action, modifiers);
+	}
 
-		@SubscribeEvent
-		public static void mouseButtonPress(InputEvent.MouseButton event) {
-			if (isInLevel() && !isInGUI())
-				Keybinds.handleMouseButton(event);
-		}
-
-		@SubscribeEvent
-		public static void onRenderWorld(RenderLevelStageEvent event) {
-			if (event.getStage() != Stage.AFTER_PARTICLES)
-				return;
-
-			PoseStack ms = event.getPoseStack();
-			ms.pushPose();
-			BufferSource buffer = Minecraft.getInstance()
+	public static void onRenderWorld(PoseStack ms, float partialTicks, Camera camera) {
+		ms.pushPose();
+		BufferSource buffer = Minecraft.getInstance()
 				.renderBuffers()
 				.bufferSource();
 
-			Vec3 cameraPosition = event.getCamera()
+		Vec3 cameraPosition = camera
 				.getPosition();
 
-			MightyClient.renderer.render(ms, buffer, cameraPosition);
-			ArchitectManager.render(ms, buffer, cameraPosition);
-			MightyClient.outliner.renderOutlines(ms, buffer, cameraPosition, event.getPartialTick());
+		MightyClient.renderer.render(ms, buffer, cameraPosition);
+		ArchitectManager.render(ms, buffer, cameraPosition);
+		MightyClient.outliner.renderOutlines(ms, buffer, cameraPosition, partialTicks);
 
-			buffer.endLastBatch();
-			RenderSystem.enableCull();
-			ms.popPose();
-		}
-
-		protected static boolean isInLevel() {
-			return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
-		}
-
-		protected static boolean isInGUI() {
-			return Minecraft.getInstance().screen != null;
-		}
-
+		buffer.endLastBatch();
+		RenderSystem.enableCull();
+		ms.popPose();
 	}
 
+	protected static boolean isInLevel() {
+		return !(Minecraft.getInstance().level == null || Minecraft.getInstance().player == null);
+	}
+
+	protected static boolean isInGUI() {
+		return Minecraft.getInstance().screen != null;
+	}
 }

@@ -13,7 +13,9 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.simibubi.mightyarchitect.foundation.MatrixStacker;
 import com.simibubi.mightyarchitect.foundation.SuperByteBuffer;
 
+import com.simibubi.mightyarchitect.render.RenderTypeHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -21,7 +23,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.ModelData;
 
 public class SchematicRenderer {
 
@@ -99,8 +100,7 @@ public class SchematicRenderer {
 				BlockPos pos = localPos.offset(anchor);
 				BlockState state = blockAccess.getBlockState(pos);
 
-				for (RenderType blockRenderLayer : blockRendererDispatcher.getBlockModel(state)
-					.getRenderTypes(state, minecraft.level.random, ModelData.EMPTY)) {
+				for (RenderType blockRenderLayer : RenderTypeHelper.getRenderTypes(state)) {
 					if (!buffers.containsKey(blockRenderLayer))
 						buffers.put(blockRenderLayer, new BufferBuilder(DefaultVertexFormat.BLOCK.getIntegerSize()));
 
@@ -108,7 +108,7 @@ public class SchematicRenderer {
 					if (startedBufferBuilders.add(blockRenderLayer))
 						bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
 					blockRendererDispatcher.renderBatched(state, pos, blockAccess, ms, bufferBuilder, true,
-						minecraft.level.random, ModelData.EMPTY, blockRenderLayer);
+						minecraft.level.random);
 					usedBlockRenderLayers.add(blockRenderLayer);
 				}
 

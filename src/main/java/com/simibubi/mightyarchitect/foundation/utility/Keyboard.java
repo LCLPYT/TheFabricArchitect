@@ -3,10 +3,7 @@ package com.simibubi.mightyarchitect.foundation.utility;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class Keyboard {
 	
 	public static final int PRESS = 1;

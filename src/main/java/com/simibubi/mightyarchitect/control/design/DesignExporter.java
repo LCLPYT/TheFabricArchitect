@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 
 import com.simibubi.mightyarchitect.AllBlocks;
 import com.simibubi.mightyarchitect.AllPackets;
+import com.simibubi.mightyarchitect.ClientPackets;
 import com.simibubi.mightyarchitect.TheMightyArchitect;
 import com.simibubi.mightyarchitect.block.SliceMarkerBlock;
 import com.simibubi.mightyarchitect.control.compose.Cuboid;
@@ -206,7 +207,7 @@ public class DesignExporter {
 			}
 		}
 
-		AllPackets.channel.sendToServer(new PlaceSignPacket(layer.getDisplayName()
+		ClientPackets.sendToServer(new PlaceSignPacket(layer.getDisplayName()
 			.substring(0, 1) + ". " + type.getDisplayName(), filename, signPos));
 		FilesHelper.saveTagCompoundAsJson(compound, designPath);
 		return designPath;

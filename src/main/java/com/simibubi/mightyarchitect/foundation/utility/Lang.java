@@ -9,7 +9,6 @@ import com.simibubi.mightyarchitect.TheMightyArchitect;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
 
 public class Lang {
 
@@ -52,11 +51,6 @@ public class Lang {
 
 	public static LangBuilder itemName(ItemStack stack) {
 		return builder().add(stack.getHoverName()
-			.copy());
-	}
-
-	public static LangBuilder fluidName(FluidStack stack) {
-		return builder().add(stack.getDisplayName()
 			.copy());
 	}
 
