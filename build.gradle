@@ -1,28 +1,23 @@
-/*
-Build file partially inspired by Porting-Lib: https://github.com/Fabricators-of-Create/Porting-Lib/blob/63460046a8a06339a7ab79d3db1dcf2ad92b92e0/build.gradle.
- */
+import work.lclpnet.build.task.GithubDeploymentTask
 
-//file:noinspection GroovyAssignabilityCheck
-//file:noinspection GroovyAccessibility
 plugins {
-    id 'fabric-loom'
+    id 'java'
+    id 'fabric-loom' version '1.4-SNAPSHOT'
     id 'maven-publish'
-    id 'gradle-build-utils'
+    id 'gradle-build-utils' version '1.5.3'
 }
 
-Properties props = loadProperties.call('publish.properties')
+Properties props = buildUtils.loadProperties('publish.properties')
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
-version = "mc${minecraft_version}_v${gitVersion.call()}"
+version = "mc${minecraft_version}_v${buildUtils.gitVersion()}"
 group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
 
 repositories {
     mavenCentral()
-
-    // ModMenu
-    maven { url = "https://maven.terraformersmc.com/releases/" }
 
     maven {
         name = "Modrinth"
@@ -32,11 +27,13 @@ repositories {
         }
     }
 
-    // Mappings
-    maven { url = "https://maven.parchmentmc.org" }
+    maven {
+        url = "https://maven.parchmentmc.org"
+    }
 
-    // first-party libraries
-    maven { url "https://repo.lclpnet.work/repository/internal" }
+    maven {
+        url "https://repo.lclpnet.work/repository/internal"
+    }
 }
 
 dependencies {
@@ -50,7 +47,8 @@ dependencies {
 
     modImplementation "maven.modrinth:sodium:${project.sodium_version}"
     modImplementation "maven.modrinth:iris:${project.iris_version}"
-    modImplementation "org.anarres:jcpp:${project.jcpp_version}" // Preprocessing library used by Iris
+    implementation "io.github.douira:glsl-transformer:${project.glsl_transformer_version}"
+    implementation "org.anarres:jcpp:${project.jcpp_version}"
 
     /* other Java dependencies */
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
@@ -73,6 +71,7 @@ tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
 
     def targetVersion = 17
+
     if (JavaVersion.current().isJava9Compatible()) {
         it.options.release.set(targetVersion)
     }
@@ -80,12 +79,33 @@ tasks.withType(JavaCompile).configureEach {
 
 java {
     withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
-    from("LICENSE.md") {
-        rename { "${it}_${project.archivesBaseName}"}
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
     }
+}
+
+def env = System.getenv()
+
+tasks.register("github", GithubDeploymentTask) {
+    dependsOn tasks.remapShadowJar
+
+    config {
+        token = env.get("GITHUB_TOKEN")
+        repository = env.get("GITHUB_REPOSITORY")
+    }
+
+    release {
+        title = "[$project.minecraft_version] $project.name $project.version"
+        tag = buildUtils.latestTag()
+    }
+
+    assets.add(tasks.remapJar.archiveFile.get())
 }
 
 // configure the maven publication
@@ -103,25 +123,5 @@ publishing {
         }
     }
 
-    repositories {
-        maven {
-            def env = System.getenv()
-            if (Arrays.stream("DEPLOY_URL", "DEPLOY_USER", "DEPLOY_PASSWORD").allMatch(env.&containsKey)) {
-                credentials {
-                    username env.get("DEPLOY_USER")
-                    password env.get("DEPLOY_PASSWORD")
-                }
-                url env.get("DEPLOY_URL")
-            }
-            else if (Arrays.stream("mavenHost", "mavenUser", "mavenPassword").allMatch(props.&containsKey)) {
-                credentials {
-                    username props.getProperty('mavenUser')
-                    password props.getProperty('mavenPassword')
-                }
-                url props.getProperty('mavenHost')
-            } else {
-                url "file:///${project.projectDir}/repo"
-            }
-        }
-    }
+    buildUtils.setupPublishRepository(repositories, props)
 }

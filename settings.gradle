@@ -1,17 +1,16 @@
 pluginManagement {
     repositories {
         maven {
-            name = 'LCLPNetwork Maven'
-            url = 'https://repo.lclpnet.work/repository/internal'
-        }
-        maven {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
+        maven {
+            name = 'LCLPNetwork Maven'
+            url = 'https://repo.lclpnet.work/repository/internal'
+        }
+        mavenCentral()
         gradlePluginPortal()
     }
-    plugins {
-        id 'fabric-loom' version '0.12-SNAPSHOT'
-        id 'gradle-build-utils' version '1.1.0'
-    }
 }
+
+rootProject.name = 'TheFabricArchitect'
