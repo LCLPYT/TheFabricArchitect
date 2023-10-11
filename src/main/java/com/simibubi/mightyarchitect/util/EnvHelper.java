@@ -1,21 +1,37 @@
 package com.simibubi.mightyarchitect.util;
 
-import com.mojang.authlib.minecraft.client.MinecraftClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.resources.language.LanguageManager;
 
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class EnvHelper {
 
     private final boolean client;
+    private final ArchitectInterface architectInterface;
 
     private EnvHelper() {
+        client = tryIsClient();
+        architectInterface = getArchitectInterface();
+    }
+
+    private static boolean tryIsClient() {
         // will probably not work on Quilt
-        client = FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
+    }
+
+    private ArchitectInterface getArchitectInterface() {
+        try {
+            Class.forName("net.irisshaders.iris.api.v0.IrisApi");
+
+            // Iris is installed, create Iris interface.
+            return new IrisArchitectImpl();
+        } catch (ClassNotFoundException ignored) {
+            // Iris is not installed, create vanilla interface.
+            return new VanillaArchitectImpl();
+        }
     }
 
     private static class Holder {
@@ -42,5 +58,9 @@ public class EnvHelper {
         }
 
         return new Locale(langSplit[0], langSplit[1]);
+    }
+
+    public static ArchitectInterface getInterface() {
+        return Holder.INSTANCE.architectInterface;
     }
 }

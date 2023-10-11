@@ -14,6 +14,7 @@ import com.simibubi.mightyarchitect.foundation.MatrixStacker;
 import com.simibubi.mightyarchitect.foundation.SuperByteBuffer;
 
 import com.simibubi.mightyarchitect.render.RenderTypeHelper;
+import com.simibubi.mightyarchitect.util.EnvHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -102,7 +103,7 @@ public class SchematicRenderer {
 
 				for (RenderType blockRenderLayer : RenderTypeHelper.getRenderTypes(state)) {
 					if (!buffers.containsKey(blockRenderLayer))
-						buffers.put(blockRenderLayer, new BufferBuilder(DefaultVertexFormat.BLOCK.getIntegerSize()));
+						buffers.put(blockRenderLayer, EnvHelper.getInterface().createBufferBuilder());
 
 					BufferBuilder bufferBuilder = buffers.get(blockRenderLayer);
 					if (startedBufferBuilders.add(blockRenderLayer))
