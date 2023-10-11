@@ -1,115 +1,127 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        jcenter()
-        mavenCentral()
-		maven { url = 'https://maven.parchmentmc.org' }
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: "${forgegradle_version}", changing: true
-        classpath "org.parchmentmc:librarian:${librarian_version}"
-    }
+import work.lclpnet.build.task.GithubDeploymentTask
+
+plugins {
+    id 'java'
+    id 'fabric-loom' version '1.4-SNAPSHOT'
+    id 'maven-publish'
+    id 'gradle-build-utils' version '1.5.3'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
+Properties props = buildUtils.loadProperties('publish.properties')
 
-version = "mc${minecraft_version}_v${mod_version}"
-group = 'com.simibubi.mightyarchitect' 
-archivesBaseName = 'mightyarchitect'
+version = buildUtils.gitVersion()
+group = project.maven_group
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+base {
+    archivesName = project.archives_base_name
+}
 
 repositories {
+    mavenCentral()
+
     maven {
-        //location of the maven for mixed mappings
-        name = "tterrag maven"
-        url = "https://maven.tterrag.com/"
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
     }
-	maven {
-        // location of a maven mirror for JEI files, as a fallback
-        name = "ModMaven"
-        url = "https://modmaven.dev"
+
+    maven {
+        url = "https://maven.parchmentmc.org"
     }
-}
 
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
-
-minecraft {
-    mappings channel: 'parchment', version: "${parchment_version}-${minecraft_version}"
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-    
-    runs {
-		client {
-            workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'info'
-            mods {
-                mightyarchitect {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'info'
-            mods {
-                mightyarchitect {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'mightyarchitect', '--all', '--output', file('src/generated/resources/')
-            mods {
-                mightyarchitect {
-                    source sourceSets.main
-                }
-            }
-        }
+    maven {
+        url "https://repo.lclpnet.work/repository/internal"
     }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    runtimeOnly fg.deobf("mezz.jei:jei-${jei_minecraft_version}-forge:${jei_version}")
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings(loom.layered {
+        it.parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_version}@zip")
+        it.officialMojangMappings { nameSyntheticMembers = false }
+    })
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modImplementation "maven.modrinth:sodium:${project.sodium_version}"
+    modImplementation "maven.modrinth:iris:${project.iris_version}"
+    implementation "io.github.douira:glsl-transformer:${project.glsl_transformer_version}"
+    implementation "org.anarres:jcpp:${project.jcpp_version}"
+
+    /* other Java dependencies */
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+    implementation "org.joml:joml:${project.joml_version}"
 }
 
-jar {
-    manifest {
-        attributes([
-            "Specification-Title": "mightyarchitect",
-            "Specification-Vendor": "simibubi",
-            "Specification-Version": "1", 
-            "Implementation-Title": project.name,
-            "Implementation-Version": project.jar.archiveVersion,
-            "Implementation-Vendor" :"simibubi",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
+loom {
+    accessWidenerPath = file("src/main/resources/mightyarchitect.accesswidener")
 }
 
-jar.finalizedBy('reobfJar')
+processResources {
+    inputs.property "version", project.version
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
-        }
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
+    it.options.encoding = "UTF-8"
+
+    def targetVersion = 17
+
+    if (JavaVersion.current().isJava9Compatible()) {
+        it.options.release.set(targetVersion)
+    }
+}
+
+java {
+    withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+
+def env = System.getenv()
+
+tasks.register("github", GithubDeploymentTask) {
+    dependsOn tasks.remapJar
+
+    config {
+        token = env.get("GITHUB_TOKEN")
+        repository = env.get("GITHUB_REPOSITORY")
+    }
+
+    release {
+        title = "[$project.minecraft_version] $project.name $project.version"
+        tag = buildUtils.latestTag()
+    }
+
+    assets.add(tasks.remapJar.archiveFile.get())
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = project.archives_base_name
+
+            from components.java
+
+            pom {
+                name = 'The Fabric Architect'
+                description = 'Design elaborate buildings within a minute!'
+            }
+        }
+    }
+
+    buildUtils.setupPublishRepository(repositories, props)
 }
