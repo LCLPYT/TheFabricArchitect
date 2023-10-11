@@ -9,7 +9,7 @@ plugins {
 
 Properties props = buildUtils.loadProperties('publish.properties')
 
-version = "mc${minecraft_version}_v${buildUtils.gitVersion()}"
+version = buildUtils.gitVersion()
 group = project.maven_group
 
 base {
