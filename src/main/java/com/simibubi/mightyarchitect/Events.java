@@ -14,10 +14,17 @@ import com.simibubi.mightyarchitect.gui.ScreenHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.chat.ChatLog;
+import net.minecraft.client.multiplayer.chat.LoggedChatMessage;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
+
+import java.time.Instant;
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class Events {
@@ -30,6 +37,7 @@ public class Events {
 		LevelRenderLastCallback.EVENT.register(Events::onRenderWorld);
 		ClientTickEvents.START_CLIENT_TICK.register(ShaderManager::onClientTick);
 		ClientTickEvents.START_CLIENT_TICK.register(ScreenHelper::onClientTick);
+		ClientReceiveMessageEvents.ALLOW_GAME.register(Events::allowReceiveGameMessage);
 		ChatReceivedClientCallback.EVENT.register(PrintingToMultiplayer::onCommandFeedback);
 	}
 
@@ -72,5 +80,32 @@ public class Events {
 
 	protected static boolean isInGUI() {
 		return Minecraft.getInstance().screen != null;
+	}
+
+	private static boolean allowReceiveGameMessage(Component message, boolean overlay) {
+		var data = new ChatReceivedClientCallback.Data(message);
+
+		ChatReceivedClientCallback.EVENT.invoker().onChatReceived(data);
+
+		if (data.isCanceled()) {
+			return false;
+		}
+
+		Component modified = data.getMessage();
+
+		if (Objects.equals(message, modified)) {
+			return true;
+		}
+
+		// the message was modified by the event
+		Minecraft minecraft = Minecraft.getInstance();
+		minecraft.gui.getChat().addMessage(modified);
+
+		minecraft.getNarrator().sayChat(modified);
+
+		ChatLog chatLog = minecraft.getReportingContext().chatLog();
+		chatLog.push(LoggedChatMessage.system(message, Instant.now()));
+
+		return false;
 	}
 }

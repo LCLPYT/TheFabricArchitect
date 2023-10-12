@@ -19,19 +19,11 @@ public interface ChatReceivedClientCallback {
     void onChatReceived(Data data);
 
     class Data {
-        private final ChatType.Bound type;
         private Component message;
-        private final UUID sender;
         private boolean canceled = false;
 
-        public Data(ChatType.Bound type, Component message, UUID sender) {
-            this.type = type;
+        public Data(Component message) {
             this.message = message;
-            this.sender = sender;
-        }
-
-        public ChatType.Bound getType() {
-            return type;
         }
 
         public Component getMessage() {
@@ -40,10 +32,6 @@ public interface ChatReceivedClientCallback {
 
         public void setMessage(Component message) {
             this.message = message;
-        }
-
-        public UUID getSender() {
-            return sender;
         }
 
         public boolean isCanceled() {
