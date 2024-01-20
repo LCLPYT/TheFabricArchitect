@@ -12,7 +12,7 @@ public class DesignAnchorBlock extends Block {
 	public static final BooleanProperty compass = BooleanProperty.create("compass");
 	
 	public DesignAnchorBlock() {
-		super(Properties.copy(Blocks.STONE));
+		super(Properties.ofFullCopy(Blocks.STONE));
 	}
 	
 	@Override

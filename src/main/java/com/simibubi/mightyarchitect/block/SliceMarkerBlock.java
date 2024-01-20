@@ -26,7 +26,7 @@ public class SliceMarkerBlock extends Block {
 		EnumProperty.<DesignSliceTrait>create("variant", DesignSliceTrait.class);
 
 	public SliceMarkerBlock() {
-		super(Properties.copy(Blocks.STONE));
+		super(Properties.ofFullCopy(Blocks.STONE));
 		this.registerDefaultState(defaultBlockState().setValue(VARIANT, DesignSliceTrait.Standard));
 	}
 

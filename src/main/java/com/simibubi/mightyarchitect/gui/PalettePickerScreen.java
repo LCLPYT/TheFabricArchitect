@@ -249,9 +249,9 @@ public class PalettePickerScreen extends AbstractSimiScreen {
 		}
 		
 		@Override
-		public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-			super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-			preview(pGuiGraphics.pose(), minecraft);
+		protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float pPartialTick) {
+			super.renderWidget(graphics, mouseX, mouseY, pPartialTick);
+			preview(graphics.pose(), minecraft);
 		}
 
 		private void preview(PoseStack ms, Minecraft mc) {

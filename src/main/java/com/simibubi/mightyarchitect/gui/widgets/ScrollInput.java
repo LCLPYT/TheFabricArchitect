@@ -77,13 +77,13 @@ public class ScrollInput extends AbstractSimiWidget {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		if (!isHovered)
 			return false;
 
 		int priorState = state;
 		boolean shifted = Screen.hasShiftDown();
-		int step = (int) Math.signum(delta);
+		int step = (int) Math.signum(scrollY);
 
 		state += step;
 		if (shifted)

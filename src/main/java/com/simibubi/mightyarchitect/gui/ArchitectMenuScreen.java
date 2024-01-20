@@ -81,6 +81,9 @@ public class ArchitectMenuScreen extends Screen {
 		draw(graphics, partialTicks);
 	}
 
+	@Override
+	public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {}
+
 	public void drawPassive(GuiGraphics graphics) {
 		if (isFocused())
 			return;

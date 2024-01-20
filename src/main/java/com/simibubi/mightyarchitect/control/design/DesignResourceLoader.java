@@ -18,6 +18,7 @@ import com.simibubi.mightyarchitect.foundation.utility.FilesHelper;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 
 public class DesignResourceLoader {
@@ -80,7 +81,7 @@ public class DesignResourceLoader {
 			try {
 				InputStream inputStream = Files.newInputStream(Paths.get("themes/" + theme.getFilePath()),
 						StandardOpenOption.READ);
-				importedThemeFile = NbtIo.readCompressed(inputStream);
+				importedThemeFile = NbtIo.readCompressed(inputStream, NbtAccounter.unlimitedHeap());
 				inputStream.close();
 			} catch (IOException e) {
 				e.printStackTrace();

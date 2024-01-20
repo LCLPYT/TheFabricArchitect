@@ -23,10 +23,10 @@ public abstract class AbstractSimiWidget extends AbstractWidget {
 		return toolTip;
 	}
 
-	@Override
-	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-		renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-	}
+//	@Override // TODO
+//	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+//		renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+//	}
 
 	@Override
 	protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) {}

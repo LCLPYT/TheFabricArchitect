@@ -31,7 +31,7 @@ public abstract class AbstractSimiScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics pGuiGraphics, int mouseX, int mouseY, float partialTicks) {
-		renderBackground(pGuiGraphics);
+		renderBackground(pGuiGraphics, mouseX, mouseY, partialTicks);
 		renderWindow(pGuiGraphics, mouseX, mouseY, partialTicks);
 		for (AbstractWidget widget : widgets)
 			widget.render(pGuiGraphics, mouseX, mouseY, partialTicks);
@@ -80,12 +80,12 @@ public abstract class AbstractSimiScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		for (AbstractWidget widget : widgets) {
-			if (widget.mouseScrolled(mouseX, mouseY, delta))
+			if (widget.mouseScrolled(mouseX, mouseY, scrollX, scrollY))
 				return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, delta);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override
