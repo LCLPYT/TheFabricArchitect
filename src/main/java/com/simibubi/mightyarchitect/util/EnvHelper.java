@@ -54,10 +54,10 @@ public class EnvHelper {
         String[] langSplit = selected.split("_", 2);
 
         if (langSplit.length == 1) {
-            return new Locale(langSplit[0]);
+            return Locale.of(langSplit[0]);
         }
 
-        return new Locale(langSplit[0], langSplit[1]);
+        return Locale.of(langSplit[0], langSplit[1]);
     }
 
     public static ArchitectInterface getInterface() {

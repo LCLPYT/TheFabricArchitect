@@ -3,10 +3,10 @@ package com.simibubi.mightyarchitect.util;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.coderbot.iris.vertices.IrisVertexFormats;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.irisshaders.iris.api.v0.IrisApi;
+import net.irisshaders.iris.vertices.IrisVertexFormats;
 
 /**
  * Interface for shader support via Iris.

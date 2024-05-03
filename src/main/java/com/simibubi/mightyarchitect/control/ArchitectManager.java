@@ -11,6 +11,7 @@ import com.simibubi.mightyarchitect.event.KeyInputCallback;
 import com.simibubi.mightyarchitect.event.MouseButtonEvents;
 import com.simibubi.mightyarchitect.event.MouseScrollCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MouseHandler;
 import org.apache.commons.io.IOUtils;
@@ -138,7 +139,7 @@ public class ArchitectManager {
 		Minecraft mc = Minecraft.getInstance();
 		if (ClientPackets.isRemotePresent(InstantPrintPacket.TYPE) && mc.player.hasPermissions(2)) {
 			for (InstantPrintPacket packet : getModel().getPackets())
-				ClientPackets.sendToServer(packet);
+				ClientPlayNetworking.send(packet);
 			MightyClient.renderer.setActive(false);
 			status("Printed result into world.");
 			unload();

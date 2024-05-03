@@ -109,7 +109,7 @@ public class GuiGameElement {
 //			matrixStack.translate(x, y, z);
 			matrixStack.scale((float) scale, (float) scale, (float) scale);
 			matrixStack.translate(xLocal, yLocal, zLocal);
-			matrixStack.mulPoseMatrix(new Matrix4f().scaling(1, -1, 1));
+			matrixStack.mulPose(new Matrix4f().scaling(1, -1, 1));
 			matrixStack.translate(rotationOffset.x, rotationOffset.y, rotationOffset.z);
 			matrixStack.mulPose(Axis.ZP.rotationDegrees((float) zRot));
 			matrixStack.mulPose(Axis.XP.rotationDegrees((float) xRot));
@@ -160,7 +160,7 @@ public class GuiGameElement {
 
 		protected void renderModel(BlockRenderDispatcher blockRenderer, MultiBufferSource.BufferSource buffer,
 			PoseStack ms) {
-			Lighting.setupLevel(ms.last().pose());
+			Lighting.setupLevel();
 			if (blockState.getBlock() == Blocks.AIR) {
 				RenderType renderType = Sheets.translucentCullBlockSheet();
 				blockRenderer.getModelRenderer()

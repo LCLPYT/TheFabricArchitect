@@ -20,6 +20,7 @@ import com.simibubi.mightyarchitect.foundation.utility.FilesHelper;
 import com.simibubi.mightyarchitect.foundation.utility.Lang;
 import com.simibubi.mightyarchitect.networking.PlaceSignPacket;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -207,7 +208,7 @@ public class DesignExporter {
 			}
 		}
 
-		ClientPackets.sendToServer(new PlaceSignPacket(layer.getDisplayName()
+		ClientPlayNetworking.send(new PlaceSignPacket(layer.getDisplayName()
 			.substring(0, 1) + ". " + type.getDisplayName(), filename, signPos));
 		FilesHelper.saveTagCompoundAsJson(compound, designPath);
 		return designPath;

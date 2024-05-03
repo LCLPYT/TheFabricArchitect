@@ -10,6 +10,7 @@ import com.simibubi.mightyarchitect.control.design.DesignSlice;
 import com.simibubi.mightyarchitect.control.design.DesignSlice.DesignSliceTrait;
 import com.simibubi.mightyarchitect.control.palette.PaletteBlockInfo;
 
+import com.simibubi.mightyarchitect.util.NbtUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -27,7 +28,7 @@ public abstract class Design {
 	public abstract Design fromNBT(CompoundTag compound);
 	
 	protected void applyNBT(CompoundTag compound) {
-		size = NbtUtils.readBlockPos(compound.getCompound("Size"));
+		size = NbtUtil.readBlockPos(compound.getCompound("Size"));
 		defaultWidth = size.getX();
 		slices = new DesignSlice[size.getY()];
 		

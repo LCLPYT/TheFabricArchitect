@@ -8,7 +8,9 @@ import com.simibubi.mightyarchitect.control.palette.Palette;
 import com.simibubi.mightyarchitect.foundation.utility.Lang;
 import com.simibubi.mightyarchitect.networking.SetHotbarItemPacket;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -73,7 +75,7 @@ public class ArchitectKits {
 	}
 
 	private static void setHotbarItem(int slot, ItemStack stack) {
-		ClientPackets.sendToServer(new SetHotbarItemPacket(slot, stack));
+		ClientPlayNetworking.send(new SetHotbarItemPacket(slot, stack));
 	}
 
 	private static void setHotbarBlock(int slot, Block block) {
@@ -85,13 +87,13 @@ public class ArchitectKits {
 			.get(palette);
 		ItemStack stack = new ItemStack(state.getBlock()
 			.asItem());
-		setHotbarItem(slot,
-			stack.setHoverName(Lang
+		stack.set(DataComponents.CUSTOM_NAME, Lang
 				.text(ChatFormatting.RESET + "" + ChatFormatting.GOLD + palette.getDisplayName() + ChatFormatting.WHITE
-					+ " (" + ChatFormatting.GRAY + stack.getHoverName()
-						.getString()
-					+ ChatFormatting.WHITE + ")")
-				.component()));
+					  + " (" + ChatFormatting.GRAY + stack.getHoverName()
+							  .getString()
+					  + ChatFormatting.WHITE + ")")
+				.component());
+		setHotbarItem(slot, stack);
 	}
 
 }

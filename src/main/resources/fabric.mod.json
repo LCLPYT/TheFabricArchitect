@@ -30,10 +30,10 @@
   ],
   "accessWidener" : "mightyarchitect.accesswidener",
   "depends": {
-    "fabricloader": ">=0.15.3",
+    "fabricloader": ">=0.15.10",
     "fabric": "*",
-    "minecraft": "1.20.4",
-    "java": ">=17"
+    "minecraft": "~1.20.5",
+    "java": ">=21"
   },
   "suggests": {}
 }

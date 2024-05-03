@@ -1,25 +1,23 @@
 package com.simibubi.mightyarchitect.networking;
 
-import java.util.function.Supplier;
-
 import com.simibubi.mightyarchitect.TheMightyArchitect;
 import com.simibubi.mightyarchitect.foundation.utility.Lang;
-
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 
-public class PlaceSignPacket implements FabricPacket, IPacketHandler {
+public class PlaceSignPacket implements CustomPacketPayload, IPacketHandler {
 
-	public static final PacketType<InstantPrintPacket> TYPE = PacketType.create(
-			TheMightyArchitect.asResource("instant_print"), InstantPrintPacket::new);
+	public static final Type<InstantPrintPacket> TYPE = new Type<>(TheMightyArchitect.asResource("instant_print"));
+
+	public static final StreamCodec<FriendlyByteBuf, PlaceSignPacket> CODEC = StreamCodec.ofMember(PlaceSignPacket::write, PlaceSignPacket::new);
 
 	public String text1;
 	public String text2;
@@ -37,7 +35,6 @@ public class PlaceSignPacket implements FabricPacket, IPacketHandler {
 		this(buffer.readUtf(128), buffer.readUtf(128), buffer.readBlockPos());
 	}
 
-	@Override
 	public void write(FriendlyByteBuf buffer) {
 		buffer.writeUtf(text1);
 		buffer.writeUtf(text2);
@@ -45,12 +42,13 @@ public class PlaceSignPacket implements FabricPacket, IPacketHandler {
 	}
 
 	@Override
-	public PacketType<?> getType() {
+	public Type<? extends CustomPacketPayload> type() {
 		return TYPE;
 	}
 
 	@Override
-	public void handle(ServerPlayer player, PacketSender responseSender) {
+	public void handle(ServerPlayNetworking.Context context) {
+		ServerPlayer player = context.player();
 		player.getServer()
 			.execute(() -> {
 				Level entityWorld = player

@@ -17,6 +17,7 @@ import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -29,6 +30,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEvent.Context;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
@@ -111,6 +113,9 @@ public class WrappedWorld extends Level {
 	public void levelEvent(@Nullable Player player, int type, BlockPos pos, int data) {}
 
 	@Override
+	public void gameEvent(Holder<GameEvent> gameEvent, Vec3 pos, Context context) {}
+
+	@Override
 	public List<? extends Player> players() {
 		return Collections.emptyList();
 	}
@@ -138,8 +143,13 @@ public class WrappedWorld extends Level {
 	}
 
 	@Override
-	public MapItemSavedData getMapData(String mapName) {
-		return null;
+	public MapItemSavedData getMapData(MapId mapId) {
+		return world.getMapData(mapId);
+	}
+
+	@Override
+	public void setMapData(MapId mapId, MapItemSavedData mapData) {
+		world.setMapData(mapId, mapData);
 	}
 
 	@Override
@@ -148,10 +158,7 @@ public class WrappedWorld extends Level {
 	}
 
 	@Override
-	public void setMapData(String pMapId, MapItemSavedData pData) {}
-
-	@Override
-	public int getFreeMapId() {
+	public MapId getFreeMapId() {
 		return world.getFreeMapId();
 	}
 
@@ -179,18 +186,17 @@ public class WrappedWorld extends Level {
 	}
 
 	@Override
+	public PotionBrewing potionBrewing() {
+		return world.potionBrewing();
+	}
+
+	@Override
 	public float getShade(Direction p_230487_1_, boolean p_230487_2_) {
 		return world.getShade(p_230487_1_, p_230487_2_);
 	}
 
 	@Override
 	public void updateNeighbourForOutputSignal(BlockPos p_175666_1_, Block p_175666_2_) {}
-
-	@Override
-	public void gameEvent(Entity pEntity, GameEvent pEvent, BlockPos pPos) {}
-
-	@Override
-	public void gameEvent(GameEvent p_220404_, Vec3 p_220405_, Context p_220406_) {}
 
 	@Override
 	public String gatherChunkSourceStats() {

@@ -39,7 +39,7 @@ repositories {
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings(loom.layered {
-        it.parchment("org.parchmentmc.data:parchment-1.20.3:${project.parchment_version}@zip")
+        it.parchment("org.parchmentmc.data:parchment-1.20.6:${project.parchment_version}@zip")
         it.officialMojangMappings { nameSyntheticMembers = false }
     })
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -49,10 +49,10 @@ dependencies {
     modImplementation "maven.modrinth:iris:${project.iris_version}"
     implementation "io.github.douira:glsl-transformer:${project.glsl_transformer_version}"
     implementation "org.anarres:jcpp:${project.jcpp_version}"
+    implementation "org.antlr:antlr4-runtime:${project.antlr4_version}"
 
     /* other Java dependencies */
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-    implementation "org.joml:joml:${project.joml_version}"
 }
 
 loom {
@@ -70,7 +70,7 @@ processResources {
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
 
-    def targetVersion = 17
+    def targetVersion = 21
 
     if (JavaVersion.current().isJava9Compatible()) {
         it.options.release.set(targetVersion)
@@ -80,8 +80,8 @@ tasks.withType(JavaCompile).configureEach {
 java {
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {

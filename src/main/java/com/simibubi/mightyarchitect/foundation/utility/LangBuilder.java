@@ -128,10 +128,6 @@ public class LangBuilder {
 		return component().getString();
 	}
 
-	public String json() {
-		return Component.Serializer.toJson(component());
-	}
-
 	public void sendStatus(Player player) {
 		player.displayClientMessage(component(), true);
 	}

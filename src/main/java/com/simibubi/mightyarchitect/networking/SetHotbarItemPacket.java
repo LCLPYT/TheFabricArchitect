@@ -1,22 +1,22 @@
 package com.simibubi.mightyarchitect.networking;
 
-import java.util.function.Supplier;
-
 import com.simibubi.mightyarchitect.TheMightyArchitect;
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.item.ItemStack;
 
-public class SetHotbarItemPacket implements FabricPacket, IPacketHandler {
+public class SetHotbarItemPacket implements CustomPacketPayload, IPacketHandler {
 
-	public static final PacketType<InstantPrintPacket> TYPE = PacketType.create(
-			TheMightyArchitect.asResource("instant_print"), InstantPrintPacket::new);
+	public static final Type<InstantPrintPacket> TYPE = new Type<>(TheMightyArchitect.asResource("instant_print"));
+
+	public static final StreamCodec<RegistryFriendlyByteBuf, SetHotbarItemPacket> CODEC = StreamCodec.composite(
+			ByteBufCodecs.INT, packet -> packet.slot,
+			ItemStack.STREAM_CODEC, packet -> packet.stack,
+			SetHotbarItemPacket::new);
 
 	private int slot;
 	private ItemStack stack;
@@ -26,23 +26,14 @@ public class SetHotbarItemPacket implements FabricPacket, IPacketHandler {
 		this.stack = stack;
 	}
 	
-	public SetHotbarItemPacket(FriendlyByteBuf buffer) {
-		this(buffer.readInt(), buffer.readItem());
-	}
-
 	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeInt(slot);
-		buffer.writeItem(stack);
-	}
-
-	@Override
-	public PacketType<?> getType() {
+	public Type<? extends CustomPacketPayload> type() {
 		return TYPE;
 	}
 
 	@Override
-	public void handle(ServerPlayer player, PacketSender responseSender) {
+	public void handle(ServerPlayNetworking.Context context) {
+		ServerPlayer player = context.player();
 		player.getServer().execute(() -> {
 			if (!player.isCreative())
 				return;
